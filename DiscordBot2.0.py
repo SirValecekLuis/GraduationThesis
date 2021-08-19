@@ -1,7 +1,10 @@
+import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions
+import asyncio
 
 bot = commands.Bot(command_prefix="!")
+bot.remove_command('help')
 
 list_ranks = {
     "dst": 877668744749522977,
@@ -34,6 +37,36 @@ async def on_message(message):
 
 
 @bot.command()
+async def help(ctx):
+    if not str(ctx.channel) == channel_name:
+        return
+
+    emb = discord.Embed(title="Použití příkazů a pomoc\n", color=discord.Color.blue())
+    emb.add_field(name="Role", value="Seznam rolí je sepsán v připnuté zprávě tohoto kanálu", inline=True)
+    emb.add_field(name="Příkazy: ", value='!rank "role"\n'
+                                          '!rank_remove "role"'
+                  )
+
+    await ctx.send(embed=emb)
+
+
+@bot.command()
+@has_permissions(ban_members=True)
+async def help_admin(ctx):
+    if not str(ctx.channel) == channel_name:
+        return
+
+    emb = discord.Embed(title="Použití příkazů pro administrátory(slouží hlavně pro úpravu bota)",
+                        color=discord.Color.blue())
+
+    emb.add_field(name="Příkazy: ", value='!check_server_roles\n'
+                                          ''
+                  )
+
+    await ctx.send(embed=emb)
+
+
+@bot.command()
 @has_permissions(ban_members=True)
 async def check_server_roles(ctx):
     ranks = ctx.guild.roles
@@ -59,7 +92,7 @@ async def rank(ctx, *, name=""):
     if not str(ctx.channel) == channel_name:
         return
 
-    # Pokud je jméno ranku v listu ranků, pokračujeme dál a jdeme najít jeho id
+    # Pokud je jméno prázdné, pošleme nápovědu
     if name == "":
         await ctx.send(help_text)
 
@@ -85,6 +118,11 @@ async def rank(ctx, *, name=""):
     # Přidávání ranku
     await ctx.author.add_roles(rank_object)
     await ctx.send(f"{ctx.author.mention} Role {name.upper()} byla přidána.")
+
+
+@rank.error
+async def rank_error(ctx, error):
+    await ctx.send(f"Nastala chyba s: {error}")
 
 
 @bot.command()
@@ -130,10 +168,18 @@ async def rank_remove(ctx, *, name=""):
     await ctx.send(f"{ctx.author.mention} Role {name.upper()} byla odstraněna.")
 
 
+@rank_remove.error
+async def rank_remove_error(ctx, error):
+    await ctx.send(f"Nastala chyba s: {error}")
+
+
 @bot.command()
+@has_permissions(ban_members=True)
 async def inf(ctx):
+    if not str(ctx.channel) == channel_name:
+        return
     await ctx.send(ctx.message.author)
     pass
 
 
-bot.run(token)
+asyncio.run(bot.run(token))
