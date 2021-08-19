@@ -132,6 +132,7 @@ async def rank_remove(ctx, *, name=""):
 
 @bot.command()
 async def inf(ctx):
+    await ctx.send(ctx.message.author)
     pass
 
 
