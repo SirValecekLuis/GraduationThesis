@@ -92,7 +92,7 @@ async def rank_remove(ctx, *, name=""):
     global list_ranks, channel_name
     rank_id = None
     name = name.lower()
-    help_text = (f"Pro odstranění role použij příkaz: !remove_rank 'rank'\n"
+    help_text = (f"Pro odstranění role použij příkaz: !rank_remove 'rank'\n"
                  f"Na výběr je z těchto rolí: {', '.join([i.upper() for i in list_ranks])}")
     list_users_ranks = [i.id for i in ctx.author.roles]
     rank_object = None
