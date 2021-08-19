@@ -37,12 +37,28 @@ async def on_message(message):
 
 
 @bot.command()
+async def role(ctx):
+    if not str(ctx.channel) == channel_name:
+        return
+
+    emb = discord.Embed(title="Role\n", color=discord.Color.blue())
+    emb.add_field(name="Seznam rolí:  ", value='DST\n'
+                                               'GTA 5'
+                  )
+
+    await ctx.send(embed=emb)
+
+
+@bot.command()
 async def help(ctx):
     if not str(ctx.channel) == channel_name:
         return
 
     emb = discord.Embed(title="Použití příkazů a pomoc\n", color=discord.Color.blue())
-    emb.add_field(name="Role", value="Seznam rolí je sepsán v připnuté zprávě tohoto kanálu", inline=True)
+    emb.add_field(name="Seznam rolí:", value=
+                       "DST \n"
+                       "LoL\n"
+                       "GTA 5", inline=True)
     emb.add_field(name="Příkazy: ", value='!rank "role"\n'
                                           '!rank_remove "role"'
                   )
