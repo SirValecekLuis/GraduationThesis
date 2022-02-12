@@ -4,11 +4,6 @@ import clr  # Pythonnet modul, zajišťuje propojení s API aplikace
 import numpy as np
 import csv
 
-"""
-test
-gfhfhfg
-"""
-
 
 class HWMInit:
     """
