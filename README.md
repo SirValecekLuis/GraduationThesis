@@ -11,6 +11,8 @@ In PyQt5, I will be using Canvas and toolbar to see and move in my graphs(from m
 
 Basic libraries like math or time and csv are used for some simple operations and steps to achieve something.
 
-The whole code is in english except DOCs and comments, sorry for that. I need to have it in czech. Feel free to contact me.
+The whole code is in english except DOCs and comments, sorry for that. I need to have it in czech. 
+Feel free to contact me.
 
-Kind regards, Tobias aka SirValecekLuis
+Kind regards, 
+Tobias aka SirValecekLuis
