@@ -1,4 +1,3 @@
-GraduationThesis
 This work is used for school purposes(graduation work) and is typed in OOP way. You can use it for your needs, if you find anything useful from this code.
 
 Goal of my work: Create an app that will show in PyQt5 information about CPU and GPU and in second tab an option to make a graph with selected information and see how your components and their temperatures, speed of fan or memory(and a few more) are increasing or decreasing.
