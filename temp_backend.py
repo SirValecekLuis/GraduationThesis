@@ -37,7 +37,7 @@ class CPU:
     def __init__(self, cpu):
         self.cpu = cpu
         self.name = self.cpu.Name
-        self.lowest_temp = None # Přepracovat, maže se při vytvoření nového objektu, dát nad __init__
+        self.lowest_temp = None # Přepracovat, maže se při vytvoření nového objektu, dát nad __init__ honem
         self.highest_temp = None
 
         for sensor in cpu.Sensors:
