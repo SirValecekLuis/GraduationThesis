@@ -37,13 +37,25 @@ class CPU:
     def __init__(self, cpu):
         self.cpu = cpu
         self.name = self.cpu.Name
+        self.lowest_temp = None # Přepracovat, maže se při vytvoření nového objektu, dát nad __init__
+        self.highest_temp = None
+
         for sensor in cpu.Sensors:
-            if str(sensor.Identifier) == "/amdcpu/0/load/0" or str(sensor.Identifier) == "/intelcpu/0/load/0":
+            sensor_name = str(sensor.Identifier)
+            if sensor_name == "/amdcpu/0/load/0" or sensor_name == "/intelcpu/0/load/0":
                 self.load = round(sensor.Value, 1)  # Vytížení v %
-            elif str(sensor.Identifier) == "/amdcpu/0/temperature/0" or str(
-                    sensor.Identifier) == "/intelcpu/0/temperature/0":
+
+            elif sensor_name == "/amdcpu/0/temperature/0" or sensor_name == "/intelcpu/0/temperature/0":
                 self.temperature = round(sensor.Value, 1)  # Teplota v °C
-            elif str(sensor.Identifier) == "/amdcpu/0/clock/1" or str(sensor.Identifier) == "/intelcpu/0/clock/1":
+                if self.lowest_temp is None and self.highest_temp is None:
+                    self.lowest_temp = self.temperature
+                    self.highest_temp = self.temperature
+                elif self.temperature < self.lowest_temp:
+                    self.lowest_temp = self.temperature
+                elif self.temperature > self.highest_temp:
+                    self.highest_temp = self.temperature
+
+            elif sensor_name == "/amdcpu/0/clock/1" or sensor_name == "/intelcpu/0/clock/1":
                 self.frequency = math.ceil(sensor.Value / 100) * 100  # Frekvence v Mhz
 
     def __repr__(self):
@@ -162,13 +174,16 @@ def test(cpu_object: CPU, gpu_object: GPU) -> print:
         try:
             print(i.Value, i.Name, i.Identifier, i.SensorType)
         except:
+            print("except")
             print(i.Value, i.Name, i.Identifier, i)
     print(20 * "#")
     for i in gpu_object.gpu.Sensors:
         try:
             print(i.Value, i.Name, i.Identifier, i.SensorType)
         except:
+            print("except")
             print(i.Value, i.Name, i.Identifier, i)
+    print(cpu_object.highest_temp, cpu_object.lowest_temp)
     time.sleep(5)
 
 
@@ -181,15 +196,23 @@ def main():
     computer_object = HWMInit()  # Obsahuje objekty s kterými mohu pracovat(co senzor to objekt)
     file = File("data.csv")  # Název souboru
     while True:
-        cpu_object = computer_object.computer.Hardware[0]
-        gpu_object = computer_object.computer.Hardware[1]
-        cpu = CPU(cpu_object)
-        gpu = GPU(gpu_object)
-        computer_object.update()
-        file.write_data(cpu, gpu)
-        file.update_ndar_list()
-        print(file.ndar_list)
-        time.sleep(5)
+        if input("Zadej režim: ") == "normal":
+            cpu_object = computer_object.computer.Hardware[0]
+            gpu_object = computer_object.computer.Hardware[1]
+            cpu = CPU(cpu_object)
+            gpu = GPU(gpu_object)
+            computer_object.update()
+            file.write_data(cpu, gpu)
+            file.update_ndar_list()
+            print(file.ndar_list)
+            time.sleep(5)
+        else:
+            cpu_object = computer_object.computer.Hardware[0]
+            gpu_object = computer_object.computer.Hardware[1]
+            cpu = CPU(cpu_object)
+            gpu = GPU(gpu_object)
+            computer_object.update()
+            test(cpu, gpu)
 
 
 if __name__ == "__main__":
