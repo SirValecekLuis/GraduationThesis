@@ -37,24 +37,15 @@ class CPU:
     def __init__(self, cpu):
         self.cpu = cpu
         self.name = self.cpu.Name
-        self.lowest_temp = None # Přepracovat, maže se při vytvoření nového objektu, dát nad __init__ honem
-        self.highest_temp = None
 
         for sensor in cpu.Sensors:
             sensor_name = str(sensor.Identifier)
             if sensor_name == "/amdcpu/0/load/0" or sensor_name == "/intelcpu/0/load/0":
                 self.load = round(sensor.Value, 1)  # Vytížení v %
-
             elif sensor_name == "/amdcpu/0/temperature/0" or sensor_name == "/intelcpu/0/temperature/0":
                 self.temperature = round(sensor.Value, 1)  # Teplota v °C
-                if self.lowest_temp is None and self.highest_temp is None:
-                    self.lowest_temp = self.temperature
-                    self.highest_temp = self.temperature
-                elif self.temperature < self.lowest_temp:
-                    self.lowest_temp = self.temperature
-                elif self.temperature > self.highest_temp:
-                    self.highest_temp = self.temperature
-
+                self.lowest_temp = round(sensor.Min, 1)
+                self.highest_temp = round(sensor.Max, 1)
             elif sensor_name == "/amdcpu/0/clock/1" or sensor_name == "/intelcpu/0/clock/1":
                 self.frequency = math.ceil(sensor.Value / 100) * 100  # Frekvence v Mhz
 
@@ -73,10 +64,12 @@ class GPU:
         self.name = self.gpu.Name
 
         for sensor in gpu.Sensors:  # Potřeba otestovat, jestli je to "atigpu" nenalezeno v dokumentaci!
-            if str(sensor.Identifier) == "/nvidiagpu/0/temperature/0" or str(
-                    sensor.Identifier) == "/atigpu/0/temperature/0":
+            sensor_name = str(sensor.Identifier)
+            if sensor_name == "/nvidiagpu/0/temperature/0" or sensor_name == "/atigpu/0/temperature/0":
                 self.temperature = int(sensor.Value)  # Teplota
-            elif str(sensor.Identifier) == "/nvidiagpu/0/control/0" or str(sensor.Identifier) == "/atigpu/0/control/0":
+                self.lowest_temp = int(sensor.Min)
+                self.highest_temp = int(sensor.Max)
+            elif sensor_name == "/nvidiagpu/0/control/0" or sensor_name == "/atigpu/0/control/0":
                 self.fan = int(sensor.Value)  # Větrák vytížení v %
             elif sensor.Name == "GPU Memory Total":
                 self.memory_total = int(sensor.Value)  # Celkový počet paměti u GPU
@@ -162,6 +155,8 @@ class File:
                 self.ndar_list[i] = np.concatenate((self.ndar_list[i], [data_to_update]))
 
 
+# Testovací část, spouští se pokud se spouští přímo zdrojový kód temp_backend.py
+
 def test(cpu_object: CPU, gpu_object: GPU) -> print:
     """
     Funkce slouží k testování a základnímu ladění programu.
@@ -176,15 +171,16 @@ def test(cpu_object: CPU, gpu_object: GPU) -> print:
         except:
             print("except")
             print(i.Value, i.Name, i.Identifier, i)
-    print(20 * "#")
+    print(60 * "#")
     for i in gpu_object.gpu.Sensors:
         try:
             print(i.Value, i.Name, i.Identifier, i.SensorType)
         except:
             print("except")
             print(i.Value, i.Name, i.Identifier, i)
-    print(cpu_object.highest_temp, cpu_object.lowest_temp)
-    time.sleep(5)
+    print(cpu_object.lowest_temp, cpu_object.highest_temp)
+    print(gpu_object.lowest_temp, gpu_object.highest_temp)
+    time.sleep(2)
 
 
 def main():
@@ -195,8 +191,9 @@ def main():
 
     computer_object = HWMInit()  # Obsahuje objekty s kterými mohu pracovat(co senzor to objekt)
     file = File("data.csv")  # Název souboru
+    inp = input("Zadej režim: ") == "normal"
     while True:
-        if input("Zadej režim: ") == "normal":
+        if inp:
             cpu_object = computer_object.computer.Hardware[0]
             gpu_object = computer_object.computer.Hardware[1]
             cpu = CPU(cpu_object)
@@ -205,7 +202,9 @@ def main():
             file.write_data(cpu, gpu)
             file.update_ndar_list()
             print(file.ndar_list)
-            time.sleep(5)
+            print(cpu.lowest_temp, cpu.highest_temp)
+            print(gpu.lowest_temp, gpu.lowest_temp)
+            time.sleep(2)
         else:
             cpu_object = computer_object.computer.Hardware[0]
             gpu_object = computer_object.computer.Hardware[1]
