@@ -203,7 +203,7 @@ def main():
             file.update_ndar_list()
             print(file.ndar_list)
             print(cpu.lowest_temp, cpu.highest_temp)
-            print(gpu.lowest_temp, gpu.lowest_temp)
+            print(gpu.lowest_temp, gpu.highest_temp)
             time.sleep(2)
         else:
             cpu_object = computer_object.computer.Hardware[0]
