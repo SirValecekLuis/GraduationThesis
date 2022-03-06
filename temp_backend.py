@@ -4,6 +4,8 @@ import clr  # Pythonnet modul, zajišťuje propojení s API aplikace
 import numpy as np
 import csv
 import re
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
 
 
 class HWMInit:
@@ -161,8 +163,13 @@ class File:
                 self.ndar_list[i] = np.concatenate((self.ndar_list[i], [data_to_update]))
 
 
-# Testovací část, spouští se pokud se spouští přímo zdrojový kód temp_backend.py
+class Graph(FigureCanvasQTAgg):
+    def __init__(self):
+        figure = Figure()
+        self.graph = figure.add_subplot()
+        super(Graph, self).__init__(figure)
 
+# Testovací část, spouští se pokud se spouští přímo zdrojový kód temp_backend.py
 def test(cpu_object: CPU, gpu_object: GPU) -> print:
     """
     Funkce slouží k testování a základnímu ladění programu.

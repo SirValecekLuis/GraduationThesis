@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from temp_backend import HWMInit, CPU, GPU, File  # Soubor, který je zprostředkovatel mých dat pro PyQt5
+from temp_backend import HWMInit, CPU, GPU, File, Graph
 
 
 class UIMainWindow(QtWidgets.QMainWindow):
@@ -13,10 +13,10 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.setGeometry(400, 150, 1024, 768)
 
         # 1. tab
-        self.tab_1 = QtWidgets.QWidget()  #
-        self.q_tab1 = QtWidgets.QTabWidget()  #
-        self.CPU_MAIN_LABEL = QtWidgets.QLabel(self.tab_1)  #
-        self.GPU_MAIN_LABEL = QtWidgets.QLabel(self.tab_1)  #
+        self.tab_1 = QtWidgets.QWidget()
+        self.q_tab1 = QtWidgets.QTabWidget()
+        self.CPU_MAIN_LABEL = QtWidgets.QLabel(self.tab_1)
+        self.GPU_MAIN_LABEL = QtWidgets.QLabel(self.tab_1)
 
         # Slouží k odstranění HTML textu a zpětného přidání
         self.parse_func = lambda text: text.replace(self.html_text_head, "").replace(self.html_font_end, "")
@@ -71,8 +71,10 @@ class UIMainWindow(QtWidgets.QMainWindow):
 
         # Začátek 2. tabu
         self.tab_2 = QtWidgets.QWidget()
-        self.CPU_WIDGET_CONT = QtWidgets.QWidget(self.tab_2)
-        self.GPU_WIDGET_CONT = QtWidgets.QWidget(self.tab_2)
+        self.CPU_WIDGET = QtWidgets.QWidget(self.tab_2)
+        self.GPU_WIDGET = QtWidgets.QWidget(self.tab_2)
+        self.CPU_LAYOUT = QtWidgets.QVBoxLayout(self.CPU_WIDGET)
+        self.GPU_LAYOUT = QtWidgets.QVBoxLayout(self.GPU_WIDGET)
         self.gpu_temp_check = QtWidgets.QCheckBox(self.tab_2)
         self.gpu_fan_check = QtWidgets.QCheckBox(self.tab_2)
         self.gpu_memory_check = QtWidgets.QCheckBox(self.tab_2)
@@ -351,15 +353,20 @@ class UIMainWindow(QtWidgets.QMainWindow):
         # Odtud začíná nastavení 2. tabu
         self.tab_2.setObjectName("tab_2")
 
-        self.CPU_WIDGET_CONT.setGeometry(QtCore.QRect(440, 40, 561, 301))
-        self.CPU_WIDGET_CONT.setObjectName("CPU_WIDGET_CONT")
+        self.CPU_WIDGET.setGeometry(QtCore.QRect(440, 40, 521, 301))
+        self.CPU_WIDGET.setObjectName("CPU_WIDGET")
 
-        self.GPU_WIDGET_CONT.setGeometry(QtCore.QRect(440, 400, 561, 301))
-        self.GPU_WIDGET_CONT.setObjectName("GPU_WIDGET_CONT")
+        self.GPU_WIDGET.setGeometry(QtCore.QRect(440, 400, 521, 301))
+        self.GPU_WIDGET.setObjectName("GPU_WIDGET")
+
+        self.CPU_LAYOUT.setObjectName("CPU_LAYOUT")
+        self.CPU_LAYOUT.setContentsMargins(0, 0, 0, 0)
+
+        self.GPU_LAYOUT.setObjectName("GPU_LAYOUT")
+        self.GPU_LAYOUT.setContentsMargins(0, 0, 0, 0)
 
         self.gpu_temp_check.setGeometry(QtCore.QRect(30, 680, 81, 21))
         self.gpu_temp_check.setChecked(True)
-        self.gpu_temp_check.setTristate(False)
         self.gpu_temp_check.setObjectName("gpu_temp_check")
 
         self.gpu_fan_check.setGeometry(QtCore.QRect(262, 680, 151, 21))
@@ -377,6 +384,13 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.cpu_load_check.setGeometry(QtCore.QRect(140, 321, 101, 21))
         self.cpu_load_check.setChecked(True)
         self.cpu_load_check.setObjectName("cpu_load_check")
+
+        # Propojení checkboxů
+        self.cpu_temp_check.stateChanged.connect(self._show_graphs)
+        self.cpu_load_check.stateChanged.connect(self._show_graphs)
+        self.gpu_temp_check.stateChanged.connect(self._show_graphs)
+        self.gpu_memory_check.stateChanged.connect(self._show_graphs)
+        self.gpu_fan_check.stateChanged.connect(self._show_graphs)
 
         self.LABEL_INFO.setGeometry(QtCore.QRect(30, 30, 401, 161))
         self.LABEL_INFO.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
@@ -540,11 +554,33 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.label_time.setText(self.font_func(self.TIME_TEXT + f"{hours}h {mins}m {secs}s"))
         self.label_data_amount.setText(self.font_func(self.DATA_AMOUNT_TEXT + str(lines)))
 
+    def _update_cpu_graphs(self):
+        ...
+
+    def _update_gpu_graphs(self):
+        ...
+
     def _show_graphs(self):
         """Tato funkce slouží k zobrazování grafů v 2. tabu a jejich pravidelné aktualizaci"""
 
-        # Nastavení grafů pro CPU
-        cpu_temp =
+        checkbox = self.sender()
+        if checkbox == self.cpu_temp_check or checkbox == self.cpu_load_check:
+            # self._update_cpu_graph()
+            print("checkbox")
+        elif checkbox != self.timer:
+            print("checkbox gpu")
+            # self._update_gpu_graph()
+
+        # Nastavení grafů pro CPU   (bool, index)
+        cpu_temp = (self.cpu_temp_check.checkState() == 2, 1)
+        cpu_load = (self.cpu_load_check.checkState() == 2, 0)
+
+        # Nastavení grafů pro GPU   (bool, index)
+        gpu_temp = (self.gpu_temp_check.checkState() == 2, 2)
+        gpu_memory = (self.gpu_memory_check.checkState() == 2, 3)
+        gpu_fan = (self.gpu_fan_check.checkState() == 2, 4)
+
+
 
     def _run(self):
         """Funkce slouží k hlavnímu chodu, opakuje se každou sekundu"""
