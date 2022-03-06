@@ -1,33 +1,54 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from temp_backend import HWMInit, CPU, GPU, File  # Soubor, který je zprostředkovatel mých dat pro PyQt5
 
 
 class UIMainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
+        # Základní nastavení okna
         self.setObjectName("main_window")
         self.setMinimumSize(0, 0)
         self.setMaximumSize(1024, 768)
         self.setGeometry(400, 150, 1024, 768)
 
-        self.tab_1 = QtWidgets.QWidget()
-        self.q_tab1 = QtWidgets.QTabWidget()
-        self.CPU_MAIN_LABEL = QtWidgets.QLabel(self.tab_1)
-        self.GPU_MAIN_LABEL = QtWidgets.QLabel(self.tab_1)
-        self.cpu_frequency_label = QtWidgets.QLabel(self.tab_1)
-        self.cpu_cores_label = QtWidgets.QLabel(self.tab_1)
-        self.cpu_name_label = QtWidgets.QLabel(self.tab_1)
+        # 1. tab
+        self.tab_1 = QtWidgets.QWidget()  #
+        self.q_tab1 = QtWidgets.QTabWidget()  #
+        self.CPU_MAIN_LABEL = QtWidgets.QLabel(self.tab_1)  #
+        self.GPU_MAIN_LABEL = QtWidgets.QLabel(self.tab_1)  #
+
+        # Slouží k odstranění HTML textu a zpětného přidání
+        self.parse_func = lambda text: text.replace(self.html_text_head, "").replace(self.html_font_end, "")
+        self.font_func = lambda text: self.html_text_head + text + self.html_font_end
+
+        # Fonty
+        self.html_title_head = "<html><head/><body><p><span style=\" font-size:16pt; font-weight:600;\">"
+        self.html_small_title_head = "<html><head/><body><p><span style=\" font-size:12pt; font-weight:600;\">"
+        self.html_font_end = "</span></p></body></html>"
+        self.html_text_head = "<html><head/><body><p><span style=\" font-size:12pt;\">"
+
+        # CPU - označené věci křížkem znamenají, že se nastaví pouze jedenkrát
+        self.cpu_frequency_label = QtWidgets.QLabel(self.tab_1)  #
+        self.cpu_name_label = QtWidgets.QLabel(self.tab_1)  #
+        self.cpu_cores_label = QtWidgets.QLabel(self.tab_1)  #
+        self.cpu_actual_temperature_label = QtWidgets.QLabel(self.tab_1)
         self.cpu_min_temperature_label = QtWidgets.QLabel(self.tab_1)
         self.cpu_max_temperature_label = QtWidgets.QLabel(self.tab_1)
         self.cpu_load_label = QtWidgets.QLabel(self.tab_1)
-        self.gpu_name_label = QtWidgets.QLabel(self.tab_1)
-        self.gpu_total_memory_label = QtWidgets.QLabel(self.tab_1)
+
+        # GPU - označené věci křížkem znamenají, že se nastaví pouze jedenkrát
+        self.gpu_name_label = QtWidgets.QLabel(self.tab_1)  #
+        self.gpu_total_memory_label = QtWidgets.QLabel(self.tab_1)  #
         self.gpu_memory_used_label = QtWidgets.QLabel(self.tab_1)
         self.gpu_fan_load_label = QtWidgets.QLabel(self.tab_1)
         self.gpu_temperature_label = QtWidgets.QLabel(self.tab_1)
         self.gpu_min_temperature_label = QtWidgets.QLabel(self.tab_1)
-        self.cpu_actual_temperature_label = QtWidgets.QLabel(self.tab_1)
         self.gpu_max_temp_label = QtWidgets.QLabel(self.tab_1)
+        # Konec 1. tabu
+
+        # Čáry
+        self.line = QtWidgets.QFrame(self.tab_1)
         self.line_2 = QtWidgets.QFrame(self.tab_1)
         self.line_3 = QtWidgets.QFrame(self.tab_1)
         self.line_4 = QtWidgets.QFrame(self.tab_1)
@@ -46,6 +67,9 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.line_17 = QtWidgets.QFrame(self.tab_1)
         self.line_18 = QtWidgets.QFrame(self.tab_1)
         self.line_19 = QtWidgets.QFrame(self.tab_1)
+        # Konec čar
+
+        # Začátek 2. tabu
         self.tab_2 = QtWidgets.QWidget()
         self.CPU_WIDGET_CONT = QtWidgets.QWidget(self.tab_2)
         self.GPU_WIDGET_CONT = QtWidgets.QWidget(self.tab_2)
@@ -59,20 +83,50 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.label_data_amount = QtWidgets.QLabel(self.tab_2)
         self.LABEL_GPU = QtWidgets.QLabel(self.tab_2)
         self.LABEL_CPU = QtWidgets.QLabel(self.tab_2)
-        self.line = QtWidgets.QFrame(self.tab_1)
+        # Konec 2. tabu
 
-        self.html_title_head = "<html><head/><body><p><span style=\" font-size:16pt; font-weight:600;\">"
-        self.html_small_title_head = "<html><head/><body><p><span style=\" font-size:12pt; font-weight:600;\">"
-        self.html_font_end = "</span></p></body></html>"
-        self.html_text_head = "<html><head/><body><p><span style=\" font-size:12pt;\">"
+        # Datová část
+        self.computer_object = HWMInit()
+        self.file = File("data.csv")
+        self.cpu = CPU(self.computer_object.cpu_object)
+        self.gpu = GPU(self.computer_object.gpu_object)
+        # Konec datové části
 
+        # Nastavení ikony
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("window-icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
 
-        self.setup_ui()
+        # Funkce s nastavením
+        self._setup_ui()
 
-    def setup_ui(self):
+        # Text k labelům
+        self.CPU_ACTUAL_TEMPERATURE_TEXT = self.parse_func(self.cpu_actual_temperature_label.text())
+        self.CPU_MIN_TEMPERATURE_TEXT = self.parse_func(self.cpu_min_temperature_label.text())
+        self.CPU_MAX_TEMPERATURE_TEXT = self.parse_func(self.cpu_max_temperature_label.text())
+        self.CPU_LOAD_TEXT = self.parse_func(self.cpu_load_label.text())
+        self.GPU_MEMORY_USED_TEXT = self.parse_func(self.gpu_memory_used_label.text())
+        self.GPU_FAN_LOAD_TEXT = self.parse_func(self.gpu_fan_load_label.text())
+        self.GPU_TEMPERATURE_TEXT = self.parse_func(self.gpu_temperature_label.text())
+        self.GPU_MIN_TEMPERATURE_TEXT = self.parse_func(self.gpu_min_temperature_label.text())
+        self.GPU_MAX_TEMP_TEXT = self.parse_func(self.gpu_max_temp_label.text())
+
+        self.TIME_TEXT = self.parse_func(self.label_time.text())
+        self.DATA_AMOUNT_TEXT = self.parse_func(self.label_data_amount.text())
+
+        # Timer pro opakovaní a hlavní spuštění aplikace
+        self.timer = QtCore.QTimer()
+        self._set_labels()
+        self._run()
+        self.timer.timeout.connect(self._run)
+
+    def _setup_ui(self):
+        """
+        setup_ui slouží k nastavení pozic a hodnot pro veškeré Widgety
+        Proměnné psané tiskacím by neměly být upravovány
+        """
+
+        # Nastavení 1. tabu
         self.q_tab1.setGeometry(QtCore.QRect(-2, 0, 1032, 772))
         self.q_tab1.setStyleSheet("background-color: rgb(211, 211, 211);")
         self.q_tab1.setObjectName("q_tab1")
@@ -86,8 +140,6 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.line.setLineWidth(1)
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setObjectName("line")
-
-        # Proměnné psané tiskacím by neměly být upravovány
 
         self.CPU_MAIN_LABEL.setGeometry(QtCore.QRect(35, 15, 165, 45))
         self.CPU_MAIN_LABEL.setFrameShadow(QtWidgets.QFrame.Plain)
@@ -117,32 +169,32 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.cpu_name_label.setTextFormat(QtCore.Qt.AutoText)
         self.cpu_name_label.setObjectName("cpu_name_label")
 
-        self.cpu_min_temperature_label.setGeometry(QtCore.QRect(55, 230, 231, 21))
+        self.cpu_min_temperature_label.setGeometry(QtCore.QRect(55, 230, 261, 21))
         self.cpu_min_temperature_label.setStyleSheet("color: rgb(40, 125, 200);")
         self.cpu_min_temperature_label.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.cpu_min_temperature_label.setTextFormat(QtCore.Qt.AutoText)
         self.cpu_min_temperature_label.setObjectName("cpu_min_temperature_label")
 
-        self.cpu_max_temperature_label.setGeometry(QtCore.QRect(55, 270, 231, 21))
+        self.cpu_max_temperature_label.setGeometry(QtCore.QRect(55, 270, 261, 21))
         self.cpu_max_temperature_label.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
         self.cpu_max_temperature_label.setStyleSheet("color: rgb(40, 125, 200);")
         self.cpu_max_temperature_label.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.cpu_max_temperature_label.setTextFormat(QtCore.Qt.AutoText)
         self.cpu_max_temperature_label.setObjectName("cpu_max_temperature_label")
 
-        self.cpu_load_label.setGeometry(QtCore.QRect(55, 310, 231, 21))
+        self.cpu_load_label.setGeometry(QtCore.QRect(55, 310, 261, 21))
         self.cpu_load_label.setStyleSheet("color: rgb(40, 125, 200);")
         self.cpu_load_label.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.cpu_load_label.setTextFormat(QtCore.Qt.AutoText)
         self.cpu_load_label.setObjectName("cpu_load_label")
 
-        self.gpu_name_label.setGeometry(QtCore.QRect(55, 455, 231, 21))
+        self.gpu_name_label.setGeometry(QtCore.QRect(55, 455, 411, 21))
         self.gpu_name_label.setStyleSheet("color: rgb(40, 125, 200);")
         self.gpu_name_label.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.gpu_name_label.setTextFormat(QtCore.Qt.AutoText)
         self.gpu_name_label.setObjectName("gpu_name_label")
 
-        self.gpu_total_memory_label.setGeometry(QtCore.QRect(55, 495, 231, 21))
+        self.gpu_total_memory_label.setGeometry(QtCore.QRect(55, 495, 261, 21))
         self.gpu_total_memory_label.setStyleSheet("color: rgb(40, 125, 200);")
         self.gpu_total_memory_label.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.gpu_total_memory_label.setTextFormat(QtCore.Qt.AutoText)
@@ -159,7 +211,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.gpu_fan_load_label.setTextFormat(QtCore.Qt.AutoText)
         self.gpu_fan_load_label.setObjectName("gpu_fan_load_label")
 
-        self.gpu_temperature_label.setGeometry(QtCore.QRect(55, 535, 231, 21))
+        self.gpu_temperature_label.setGeometry(QtCore.QRect(55, 535, 261, 21))
         self.gpu_temperature_label.setStyleSheet("color: rgb(40, 125, 200);")
         self.gpu_temperature_label.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.gpu_temperature_label.setTextFormat(QtCore.Qt.AutoText)
@@ -171,7 +223,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.gpu_min_temperature_label.setTextFormat(QtCore.Qt.AutoText)
         self.gpu_min_temperature_label.setObjectName("gpu_min_temperature_label")
 
-        self.cpu_actual_temperature_label.setGeometry(QtCore.QRect(55, 190, 231, 21))
+        self.cpu_actual_temperature_label.setGeometry(QtCore.QRect(55, 190, 261, 21))
         self.cpu_actual_temperature_label.setStyleSheet("color: rgb(40, 125, 200);")
         self.cpu_actual_temperature_label.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.cpu_actual_temperature_label.setTextFormat(QtCore.Qt.AutoText)
@@ -183,6 +235,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.gpu_max_temp_label.setTextFormat(QtCore.Qt.AutoText)
         self.gpu_max_temp_label.setObjectName("gpu_max_temp_label")
 
+        # Čáry GUI
         self.line_2.setGeometry(QtCore.QRect(55, 300, 420, 3))
         self.line_2.setStyleSheet("background-color: rgb(175, 175, 175);")
         self.line_2.setFrameShape(QtWidgets.QFrame.HLine)
@@ -290,11 +343,12 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.line_19.setFrameShape(QtWidgets.QFrame.VLine)
         self.line_19.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line_19.setObjectName("line_19")
+        # Konec nastavení čar
 
+        # Nastavení 1. tabu
         self.q_tab1.addTab(self.tab_1, "")
 
-        # Odtud začíná 2. sekce s grafy
-
+        # Odtud začíná nastavení 2. tabu
         self.tab_2.setObjectName("tab_2")
 
         self.CPU_WIDGET_CONT.setGeometry(QtCore.QRect(440, 40, 561, 301))
@@ -328,10 +382,10 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.LABEL_INFO.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
         self.LABEL_INFO.setObjectName("LABEL_INFO")
 
-        self.label_time.setGeometry(QtCore.QRect(30, 460, 141, 31))
+        self.label_time.setGeometry(QtCore.QRect(30, 460, 221, 31))
         self.label_time.setObjectName("label_time")
 
-        self.label_data_amount.setGeometry(QtCore.QRect(30, 491, 141, 31))
+        self.label_data_amount.setGeometry(QtCore.QRect(30, 491, 221, 31))
         self.label_data_amount.setObjectName("label_data_amount")
 
         self.LABEL_GPU.setGeometry(QtCore.QRect(30, 640, 321, 31))
@@ -341,14 +395,15 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.LABEL_CPU.setObjectName("LABEL_CPU")
 
         self.q_tab1.addTab(self.tab_2, "")
+        self.q_tab1.setCurrentIndex(0)
         self.setCentralWidget(self.q_tab1)
 
-        self.style_sheet()
+        # Nastavení CSS
+        self._style_sheet()
 
-        self.q_tab1.setCurrentIndex(0)
-
-    def style_sheet(self):
+    def _style_sheet(self):
         """Nastavování HTML stylů pro každý text"""
+
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("main_window", "Ukazatel teplot"))
 
@@ -364,15 +419,14 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.cpu_cores_label.setText(_translate("main_window",
                                                 f"{self.html_text_head}Počet jader: {self.html_font_end}"))
         self.cpu_name_label.setText(_translate("main_window",
-                                               f"{self.html_text_head}Název procesoru: AMD Athlon II X4 640 Processor"
-                                               f"{self.html_font_end}")
+                                               f"{self.html_text_head}Název procesoru: {self.html_font_end}")
                                     )
         self.cpu_min_temperature_label.setText(_translate("main_window",
-                                                          f"{self.html_text_head}Nejmenší naměřená teplota °C:"
+                                                          f"{self.html_text_head}Nejmenší naměřená teplota °C: "
                                                           f" {self.html_font_end}")
                                                )
         self.cpu_max_temperature_label.setText(_translate("main_window",
-                                                          f"{self.html_text_head}Největší naměřená teplota °C:"
+                                                          f"{self.html_text_head}Největší naměřená teplota °C: "
                                                           f" {self.html_font_end}")
                                                )
         self.cpu_load_label.setText(_translate("main_window",
@@ -398,7 +452,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
                                                       f"{self.html_font_end}")
                                            )
         self.gpu_min_temperature_label.setText(_translate("main_window",
-                                                          f"{self.html_text_head}Nejmenší naměřená teplota °C:"
+                                                          f"{self.html_text_head}Nejmenší naměřená teplota °C: "
                                                           f"{self.html_font_end}")
                                                )
         self.cpu_actual_temperature_label.setText(_translate("main_window",
@@ -406,7 +460,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
                                                              f"{self.html_font_end}")
                                                   )
         self.gpu_max_temp_label.setText(_translate("main_window",
-                                                   f"{self.html_text_head}Největší naměřená teplota °C:"
+                                                   f"{self.html_text_head}Největší naměřená teplota °C: "
                                                    f"{self.html_font_end}")
                                         )
 
@@ -438,13 +492,78 @@ class UIMainWindow(QtWidgets.QMainWindow):
 
         self.q_tab1.setTabText(self.q_tab1.indexOf(self.tab_2), _translate("main_window", "Grafy"))
 
+    def _set_labels(self):
+        """Funkce slouží k nastavení všech labelů v 1. tabu"""
+
+        # CPU část
+        self.cpu_name_label.setText(self.font_func(self.parse_func(self.cpu_name_label.text()) + self.cpu.name))
+        self.cpu_cores_label.setText(self.font_func(self.parse_func(self.cpu_cores_label.text()) + self.cpu.cores))
+        self.cpu_frequency_label.setText(self.font_func(self.parse_func(self.cpu_frequency_label.text())
+                                                        + str(self.cpu.frequency)))
+
+        # GPU část
+        self.gpu_name_label.setText(self.font_func(self.parse_func(self.gpu_name_label.text())
+                                                   + self.gpu.name))
+        self.gpu_total_memory_label.setText(self.font_func(self.parse_func(self.gpu_total_memory_label.text())
+                                                           + str(self.gpu.memory_total)))
+
+    def _set_changing_labels(self):
+        """Tato funkce slouží k pravidelné obměně informací na 1. tabu, jelikož tyto informace nejsou konstatní"""
+
+        # Pokračování CPU části, která se mění
+        self.cpu_actual_temperature_label.setText(
+            self.font_func(self.CPU_ACTUAL_TEMPERATURE_TEXT + str(self.cpu.temperature)))
+        self.cpu_min_temperature_label.setText(
+            self.font_func(self.CPU_MIN_TEMPERATURE_TEXT + str(self.cpu.lowest_temp)))
+        self.cpu_max_temperature_label.setText(
+            self.font_func(self.CPU_MAX_TEMPERATURE_TEXT + str(self.cpu.highest_temp)))
+        self.cpu_load_label.setText(
+            self.font_func(self.CPU_LOAD_TEXT + str(self.cpu.load)))
+
+        # Pokračování GPU části, která se mění
+        self.gpu_temperature_label.setText(
+            self.font_func(self.GPU_TEMPERATURE_TEXT + str(self.gpu.temperature)))
+        self.gpu_min_temperature_label.setText(
+            self.font_func(self.GPU_MIN_TEMPERATURE_TEXT + str(self.gpu.lowest_temp)))
+        self.gpu_max_temp_label.setText(
+            self.font_func(self.GPU_MAX_TEMP_TEXT + str(self.gpu.highest_temp)))
+        self.gpu_memory_used_label.setText(
+            self.font_func(self.GPU_MEMORY_USED_TEXT + str(self.gpu.memory_used)))
+        self.gpu_fan_load_label.setText(
+            self.font_func(self.GPU_FAN_LOAD_TEXT + str(self.gpu.fan)))
+
+        # Aktualizace labelů a času + velikost souboru
+        secs = lines = len(self.file.ndar_list[0]) - 1  # Počet řádků odpovídá počtu sekund
+        mins, secs = divmod(secs, 60)
+        hours, mins = divmod(mins, 60)
+
+        self.label_time.setText(self.font_func(self.TIME_TEXT + f"{hours}h {mins}m {secs}s"))
+        self.label_data_amount.setText(self.font_func(self.DATA_AMOUNT_TEXT + str(lines)))
+
+    def _show_graphs(self):
+        """Tato funkce slouží k zobrazování grafů v 2. tabu a jejich pravidelné aktualizaci"""
+
+        # Nastavení grafů pro CPU
+        cpu_temp =
+
+    def _run(self):
+        """Funkce slouží k hlavnímu chodu, opakuje se každou sekundu"""
+
+        self.timer.start(1000)
+        self.computer_object.update()
+        self.cpu = CPU(self.computer_object.cpu_object)
+        self.gpu = GPU(self.computer_object.gpu_object)
+        self.file.write_data(self.cpu, self.gpu)
+        self.file.update_ndar_list()
+        self._set_changing_labels()
+        self._show_graphs()
+
 
 def main():
     import sys
     app = QtWidgets.QApplication(sys.argv)
     ui = UIMainWindow()
     ui.show()
-
     sys.exit(app.exec_())
 
 

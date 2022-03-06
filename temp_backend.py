@@ -3,6 +3,7 @@ import time
 import clr  # Pythonnet modul, zajišťuje propojení s API aplikace
 import numpy as np
 import csv
+import re
 
 
 class HWMInit:
@@ -13,10 +14,12 @@ class HWMInit:
     def __init__(self):
         clr.AddReference(r'OpenHardwareMonitor/OpenHardwareMonitorLib')  # Cesta, kde se nachází dll soubor
         from OpenHardwareMonitor.Hardware import Computer  # Z daného místa importuji Computer
-        self.computer = Computer()  # Zavedení objektu s daty
-        self.computer.CPUEnabled = True  # Chci získávat údaje z processoru, [0] a jejich informace
-        self.computer.GPUEnabled = True  # Chci získávat údaje z grafické karty [1] bude označovat grafické senzory
-        self.computer.Open()  # Spustím měření
+        self._computer = Computer()  # Zavedení objektu s daty
+        self._computer.CPUEnabled = True  # Chci získávat údaje z processoru, [0] a jejich informace
+        self._computer.GPUEnabled = True  # Chci získávat údaje z grafické karty [1] bude označovat grafické senzory
+        self._computer.Open()  # Spustím měření
+        self.cpu_object = self._computer.Hardware[0]
+        self.gpu_object = self._computer.Hardware[1]
 
     def update(self) -> None:
         """
@@ -24,8 +27,8 @@ class HWMInit:
         :return: None
         """
 
-        self.computer.Hardware[0].Update()
-        self.computer.Hardware[1].Update()
+        self.cpu_object.Update()
+        self.gpu_object.Update()
 
 
 class CPU:
@@ -48,6 +51,9 @@ class CPU:
                 self.highest_temp = round(sensor.Max, 1)
             elif sensor_name == "/amdcpu/0/clock/1" or sensor_name == "/intelcpu/0/clock/1":
                 self.frequency = math.ceil(sensor.Value / 100) * 100  # Frekvence v Mhz
+
+            if re.search("Core #[1] - #[0-9]*[0-9]", str(sensor.Name)) is not None:
+                self.cores = re.search("- #.*", str(sensor.Name)).group().replace("- #", "")
 
     def __repr__(self):
         return f"{self.load},{self.temperature}"
@@ -194,10 +200,8 @@ def main():
     inp = input("Zadej režim: ") == "normal"
     while True:
         if inp:
-            cpu_object = computer_object.computer.Hardware[0]
-            gpu_object = computer_object.computer.Hardware[1]
-            cpu = CPU(cpu_object)
-            gpu = GPU(gpu_object)
+            cpu = CPU(computer_object.cpu_object)
+            gpu = GPU(computer_object.gpu_object)
             computer_object.update()
             file.write_data(cpu, gpu)
             file.update_ndar_list()
@@ -206,10 +210,8 @@ def main():
             print(gpu.lowest_temp, gpu.highest_temp)
             time.sleep(2)
         else:
-            cpu_object = computer_object.computer.Hardware[0]
-            gpu_object = computer_object.computer.Hardware[1]
-            cpu = CPU(cpu_object)
-            gpu = GPU(gpu_object)
+            cpu = CPU(computer_object.cpu_object)
+            gpu = GPU(computer_object.gpu_object)
             computer_object.update()
             test(cpu, gpu)
 
