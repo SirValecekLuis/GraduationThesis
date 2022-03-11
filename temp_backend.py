@@ -4,8 +4,11 @@ import clr  # Pythonnet modul, zajišťuje propojení s API aplikace
 import numpy as np
 import csv
 import re
+import matplotlib
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
+
+matplotlib.use('Qt5Agg')
 
 
 class HWMInit:
@@ -99,7 +102,7 @@ class File:
         self.name = name
         self._data_list = []
         self.ndar_list = []
-        self._header = []
+        self.header = []
 
     def write_data(self, cpu: CPU, gpu: GPU) -> None:
         """
@@ -130,7 +133,7 @@ class File:
 
         with open(self.name, "r") as f:
             csv_data = csv.reader(f)
-            self._header = next(csv_data)
+            self.header = next(csv_data)
             for row in csv_data:
                 self._data_list.append(row)
 
@@ -141,10 +144,10 @@ class File:
         :return: None
         """
 
-        for i in range(len(self._header)):
-            temp_list = [self._header[i]]
+        for i in range(len(self.header)):
+            temp_list = []
             for row in self._data_list:
-                temp_list.append(row[i])
+                temp_list.append(float(row[i]))
             self.ndar_list.append(np.array(temp_list))
 
     def update_ndar_list(self) -> None:
@@ -158,16 +161,45 @@ class File:
             self._create_data_list()
             self._create_ndar_list()
         else:
-            for i in range(len(self._header)):
+            for i in range(len(self.header)):
                 data_to_update = self._last_data.split(",")[i]
-                self.ndar_list[i] = np.concatenate((self.ndar_list[i], [data_to_update]))
+                self.ndar_list[i] = np.concatenate((self.ndar_list[i], [float(data_to_update)]))
 
 
 class Graph(FigureCanvasQTAgg):
-    def __init__(self):
-        figure = Figure()
-        self.graph = figure.add_subplot()
-        super(Graph, self).__init__(figure)
+    def __init__(self, data: np.ndarray, header: list):
+        # https://matplotlib.org/3.5.1/gallery/user_interfaces/embedding_in_qt_sgskip.html
+        figure = Figure()  # Vytvořím základní místo pro graf
+        super().__init__(figure)  # Dědím ze třídy FigureCanvas pro svoji proměnnou figure
+        self.sub = figure.add_subplot()  # Vytvořím jednotlivé políčko pro graf
+
+        self.header = header  # Všechna záhlaví pro daný graf
+
+        index = 0  # Potřebuji dočasnou proměnou na to, abych určil jaké záhlaví použít
+        if len(data) == 2:
+            index = 1
+            self.data_y = data[index]  # 2 sloupce, 2. sloupec je teplota
+        else:
+            self.data_y = data[index]  # 3 sloupce, 1. sloupec je teplota
+
+        label = "Teplota °C" if not self.header else self.header[index]
+
+        self.data_x = np.linspace(0, len(data[0]), len(data[0]))  # Vytvořím si pole odpovídající velikosti dat
+        self.graph, = self.sub.plot(self.data_x, self.data_y,
+                                    "-b", label=label)  # Vykreslím teplotu vzhledem k času
+        self.sub.legend()  # Zobrazí legendu
+        self.sub.tick_params(bottom=False)  # Oddělá prostřední čárky pro časovou osu
+        self.sub.set_xticks([])
+
+    def update_data(self, data: np.ndarray, index: int):
+        """Funkce slouží k novému nahrání dat z předešlé doby"""
+
+        self.data_x = np.linspace(0, len(data[0]), len(data[0]))  # Vypíšu rozmezí časové od 0 do počet dat(počet sec)
+        self.graph.set_data(self.data_x, data[index])  # Nastavím nové informace
+        self.sub.set_xlim(0, len(data[0]))  # Data[0] znamená jen kvůli počtu sekund (počet měření = počet s)
+        self.sub.set_ylim(min(data[index]) - 0.5, max(data[index]) + 0.5)  # Nastavím nový rozsah sloupce
+        self.graph.figure.canvas.draw()  # Zobrazí aktuální graf
+
 
 # Testovací část, spouští se pokud se spouští přímo zdrojový kód temp_backend.py
 def test(cpu_object: CPU, gpu_object: GPU) -> print:

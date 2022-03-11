@@ -1,5 +1,6 @@
 import sys
 import matplotlib
+import random
 
 matplotlib.use('Qt5Agg')
 
@@ -13,8 +14,12 @@ class MplCanvas(FigureCanvasQTAgg):
 
     def __init__(self):
         fig = Figure()
-        self.axes = fig.add_subplot()
-        super(MplCanvas, self).__init__(fig)
+        super().__init__(fig)
+        self.axes = fig.add_subplot(2, 1, 1)
+        self.axes2 = fig.add_subplot(2, 1, 2)
+        self.toolbar = NavigationToolbar(canvas=self, parent=None)
+        self.obrazek, = self.axes.plot([0, 1, 2, 3, 4], [10, 1, 20, 3, 40])
+        self.obrazek2, = self.axes2.plot([0, 1, 2, 3, 4], [1, 6, 2, 6, 3])
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -22,24 +27,17 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
-        sc = MplCanvas()
-        sc.axes.plot([0, 1, 2, 3, 4], [10, 1, 20, 3, 40])
-        sc.axes.plot([1, 2, 3, 4, 5], [12, 13, 14, 15, 16])
-
-        sc.setGeometry(QtCore.QRect(500,500,500,500))
-
-        # Create toolbar, passing canvas as first parament, parent (self, the MainWindow) as second.
-        toolbar = NavigationToolbar(sc, self)
+        self.sc = MplCanvas()
+        self.obrazek = self.sc.obrazek
 
         layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(toolbar)
+
+        layout.addWidget(self.sc)
         self.btn = QtWidgets.QPushButton("Tlačítkoooo")
         layout.addWidget(self.btn)
         self.btn.pressed.connect(self.timer)
-        self.label = QtWidgets.QLabel("Tady bude informace")
         self.time = QtCore.QTimer()
         self.time.timeout.connect(self.timer)
-        layout.addWidget(self.label)
 
         # Create a placeholder widget to hold our toolbar and canvas.
         widget = QtWidgets.QWidget()
@@ -50,10 +48,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def timer(self):
         self.time.start(1000)
-        time = QtCore.QDateTime.currentDateTime()
-        timeDisplay = time.toString('yyyy-MM-dd hh:mm:ss dddd')
-        self.label.setText(timeDisplay)
-        print("Zopakovano")
+        data = [random.randint(1, 10) for _ in range(5)]
+        second_list = [1, 10, 20, 50, 100]
+        self.sc.axes.set_ylim(0, 100)
+        self.sc.axes.set_xlim(0, 100)
+        self.obrazek.set_data(data, second_list)
+        self.obrazek.figure.canvas.draw()
 
 
 app = QtWidgets.QApplication(sys.argv)
