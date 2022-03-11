@@ -125,10 +125,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
         # Timer pro opakovaní a hlavní spuštění aplikace
         self.timer = QtCore.QTimer()
         self._set_labels()
-        try:
-            self._show_graphs()
-        except IndexError:
-            ...
+        self._show_graphs()
         self._run()
         self.timer.timeout.connect(self._run)
 
@@ -335,6 +332,12 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.cpu_temp_btn.setGeometry(QtCore.QRect(30, 321, 101, 21))
         self.cpu_load_btn.setGeometry(QtCore.QRect(140, 321, 101, 21))
 
+        self.gpu_temp_btn.clicked.connect(self._update_graphs)
+        self.gpu_fan_btn.clicked.connect(self._update_graphs)
+        self.gpu_memory_btn.clicked.connect(self._update_graphs)
+        self.cpu_temp_btn.clicked.connect(self._update_graphs)
+        self.cpu_load_btn.clicked.connect(self._update_graphs)
+
         self.LABEL_INFO.setGeometry(QtCore.QRect(30, 30, 401, 161))
         self.LABEL_INFO.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
 
@@ -533,6 +536,9 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.file.update_ndar_list()
         self._set_changing_labels()
         self._update_graphs()
+
+        # Dodělat tlačítka zastavit měření a spustit měření, dodělat vyskakovací okno, pokud otevírám aplikaci
+        # po 2. a získat CSS styly na tlačítka + možná upravit víc graf + zkusit spustit bez správce úloh a ošetřit
 
 
 def main():
