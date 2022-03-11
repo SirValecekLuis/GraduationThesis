@@ -5,7 +5,7 @@ import numpy as np
 import csv
 import re
 import matplotlib
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
 matplotlib.use('Qt5Agg')
@@ -179,15 +179,17 @@ class Graph(FigureCanvasQTAgg):
         if len(data) == 2:
             index = 1
             self.data_y = data[index]  # 2 sloupce, 2. sloupec je teplota
+            self.sub.set_title("Hodnoty procesoru")
         else:
+            self.sub.set_title("Hodnoty grafické karty")
             self.data_y = data[index]  # 3 sloupce, 1. sloupec je teplota
-
-        label = "Teplota °C" if not self.header else self.header[index]
 
         self.data_x = np.linspace(0, len(data[0]), len(data[0]))  # Vytvořím si pole odpovídající velikosti dat
         self.graph, = self.sub.plot(self.data_x, self.data_y,
-                                    "-b", label=label)  # Vykreslím teplotu vzhledem k času
-        self.sub.legend()  # Zobrazí legendu
+                                    "-b", label=header[index])  # Vykreslím teplotu vzhledem k času
+        self.sub.legend(loc=1)  # Zobrazí legendu v pravo nahoře
+        self.sub.set_xlabel("t (čas)")
+        self.sub.set_ylabel(header[index])
         self.sub.tick_params(bottom=False)  # Oddělá prostřední čárky pro časovou osu
         self.sub.set_xticks([])
 
@@ -197,7 +199,8 @@ class Graph(FigureCanvasQTAgg):
         self.data_x = np.linspace(0, len(data[0]), len(data[0]))  # Vypíšu rozmezí časové od 0 do počet dat(počet sec)
         self.graph.set_data(self.data_x, data[index])  # Nastavím nové informace
         self.sub.set_xlim(0, len(data[0]))  # Data[0] znamená jen kvůli počtu sekund (počet měření = počet s)
-        self.sub.set_ylim(min(data[index]) - 0.5, max(data[index]) + 0.5)  # Nastavím nový rozsah sloupce
+        self.sub.set_ylim(min(data[index]) - 0.5, max(data[index]) + 1.5)  # Nastavím nový rozsah sloupce
+        self.sub.set_ylabel(self.header[index])  # Přejmenuji Y osu
         self.graph.figure.canvas.draw()  # Zobrazí aktuální graf
 
 

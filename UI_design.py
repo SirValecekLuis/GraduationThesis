@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from temp_backend import HWMInit, CPU, GPU, File, Graph
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+import os
 
 
 class UIMainWindow(QtWidgets.QMainWindow):
@@ -75,11 +76,11 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.GPU_WIDGET = QtWidgets.QWidget(self.tab_2)
         self.CPU_LAYOUT = QtWidgets.QVBoxLayout(self.CPU_WIDGET)
         self.GPU_LAYOUT = QtWidgets.QVBoxLayout(self.GPU_WIDGET)
-        self.gpu_temp_check = QtWidgets.QCheckBox(self.tab_2)
-        self.gpu_fan_check = QtWidgets.QCheckBox(self.tab_2)
-        self.gpu_memory_check = QtWidgets.QCheckBox(self.tab_2)
-        self.cpu_temp_check = QtWidgets.QCheckBox(self.tab_2)
-        self.cpu_load_check = QtWidgets.QCheckBox(self.tab_2)
+        self.gpu_temp_btn = QtWidgets.QPushButton(self.tab_2)
+        self.gpu_fan_btn = QtWidgets.QPushButton(self.tab_2)
+        self.gpu_memory_btn = QtWidgets.QPushButton(self.tab_2)
+        self.cpu_temp_btn = QtWidgets.QPushButton(self.tab_2)
+        self.cpu_load_btn = QtWidgets.QPushButton(self.tab_2)
         self.LABEL_INFO = QtWidgets.QLabel(self.tab_2)
         self.label_time = QtWidgets.QLabel(self.tab_2)
         self.label_data_amount = QtWidgets.QLabel(self.tab_2)
@@ -90,12 +91,13 @@ class UIMainWindow(QtWidgets.QMainWindow):
         # Datová část
         self.computer_object = HWMInit()
         self.file = File("data.csv")
-        try:
-            self.file.update_ndar_list()
-        except (StopIteration, FileNotFoundError):
-            ...
         self.cpu = CPU(self.computer_object.cpu_object)
         self.gpu = GPU(self.computer_object.gpu_object)
+        if not os.path.exists("data.csv"):  # Pokud spouštím aplikaci po 1. nebo soubor neexistuje, zapíšu data
+            self.file.write_data(self.cpu, self.gpu)
+            self.file.update_ndar_list()
+        else:
+            self.file.update_ndar_list()
         # Konec datové části
 
         # Nastavení ikony
@@ -123,8 +125,10 @@ class UIMainWindow(QtWidgets.QMainWindow):
         # Timer pro opakovaní a hlavní spuštění aplikace
         self.timer = QtCore.QTimer()
         self._set_labels()
-        self._show_graphs()
-
+        try:
+            self._show_graphs()
+        except IndexError:
+            ...
         self._run()
         self.timer.timeout.connect(self._run)
 
@@ -321,34 +325,15 @@ class UIMainWindow(QtWidgets.QMainWindow):
         # Odtud začíná nastavení 2. tabu
 
         self.CPU_WIDGET.setGeometry(QtCore.QRect(470, 40, 521, 301))
-
         self.GPU_WIDGET.setGeometry(QtCore.QRect(470, 400, 521, 301))
-
         self.CPU_LAYOUT.setContentsMargins(0, 0, 0, 0)
-
         self.GPU_LAYOUT.setContentsMargins(0, 0, 0, 0)
 
-        self.gpu_temp_check.setGeometry(QtCore.QRect(30, 680, 81, 21))
-        self.gpu_temp_check.setChecked(True)
-
-        self.gpu_fan_check.setGeometry(QtCore.QRect(262, 680, 151, 21))
-        self.gpu_fan_check.setChecked(True)
-
-        self.gpu_memory_check.setGeometry(QtCore.QRect(121, 680, 131, 21))
-        self.gpu_memory_check.setChecked(True)
-
-        self.cpu_temp_check.setGeometry(QtCore.QRect(30, 321, 101, 21))
-        self.cpu_temp_check.setChecked(True)
-
-        self.cpu_load_check.setGeometry(QtCore.QRect(140, 321, 101, 21))
-        self.cpu_load_check.setChecked(True)
-
-        # Propojení checkboxů
-        # self.cpu_temp_check.stateChanged.connect(self._show_graphs)
-        # self.cpu_load_check.stateChanged.connect(self._show_graphs)
-        # self.gpu_temp_check.stateChanged.connect(self._show_graphs)
-        # self.gpu_memory_check.stateChanged.connect(self._show_graphs)
-        # self.gpu_fan_check.stateChanged.connect(self._show_graphs)
+        self.gpu_temp_btn.setGeometry(QtCore.QRect(30, 680, 81, 21))
+        self.gpu_fan_btn.setGeometry(QtCore.QRect(262, 680, 151, 21))
+        self.gpu_memory_btn.setGeometry(QtCore.QRect(121, 680, 131, 21))
+        self.cpu_temp_btn.setGeometry(QtCore.QRect(30, 321, 101, 21))
+        self.cpu_load_btn.setGeometry(QtCore.QRect(140, 321, 101, 21))
 
         self.LABEL_INFO.setGeometry(QtCore.QRect(30, 30, 401, 161))
         self.LABEL_INFO.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
@@ -429,11 +414,11 @@ class UIMainWindow(QtWidgets.QMainWindow):
                                         )
 
         self.q_tab1.setTabText(self.q_tab1.indexOf(self.tab_1), _translate("main_window", "Sensory"))
-        self.gpu_temp_check.setText(_translate("main_window", "Teplota GPU"))
-        self.gpu_fan_check.setText(_translate("main_window", "Zatížení větráčku na GPU"))
-        self.gpu_memory_check.setText(_translate("main_window", "Vytížení paměti VRAM"))
-        self.cpu_temp_check.setText(_translate("main_window", "Teplota CPU"))
-        self.cpu_load_check.setText(_translate("main_window", "Zatížení CPU"))
+        self.gpu_temp_btn.setText(_translate("main_window", "Teplota GPU"))
+        self.gpu_fan_btn.setText(_translate("main_window", "Zatížení větráčku na GPU"))
+        self.gpu_memory_btn.setText(_translate("main_window", "Vytížení paměti VRAM"))
+        self.cpu_temp_btn.setText(_translate("main_window", "Teplota CPU"))
+        self.cpu_load_btn.setText(_translate("main_window", "Zatížení CPU"))
 
         self.LABEL_INFO.setText(_translate("main_window", f"{self.html_small_title_head}"
                                                           f"Grafy znázorňující informace v závislosti na čase."
@@ -515,11 +500,27 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.GPU_LAYOUT.addWidget(NavigationToolbar(self.canvas_gpu, self))
         self.GPU_LAYOUT.addWidget(self.canvas_gpu)
 
+        self.index_cpu = 1  # Teplota je 2. v csv
+        self.index_gpu = 0  # Teplota je 3. v csv (ale začínám od 3. sloupce, takže je to nultá věc)
+
     def _update_graphs(self):
         """Tato funkce slouží k tomu, když uživatel si přeje zobrazit jiný graf, nebo k aktualizaci stávajícího grafu"""
 
-        self.canvas_cpu.update_data(self.file.ndar_list, 1)  # Dodávám index aktuální informace, která se má zobrazit
-        self.canvas_gpu.update_data(self.file.ndar_list, 2)  # _,,_
+        dict_btn = {self.cpu_load_btn: 0, self.cpu_temp_btn: 1, self.gpu_temp_btn: 2, self.gpu_fan_btn: 3,
+                    self.gpu_memory_btn: 4
+                    }  # Slovník s tlačítky a jejich indexy odpovídající CSV souborům
+        try:
+            index = dict_btn[self.sender()]  # Když je stisknuto tlačítko, najdu ho v listu a připíšu mu index
+        except KeyError:
+            index = -1  # Když tlačítko nebylo stisknuto, nechávám pozice jak byly
+
+        if 0 <= index <= 1:
+            self.index_cpu = index
+        elif index >= 2:
+            self.index_gpu = index - 2  # Odečítám 2, protože nezačínám od 2 ale od 0, mám jenom část listu
+
+        self.canvas_cpu.update_data(self.file.ndar_list[0:2], self.index_cpu)  # Dodávám index aktuálního csv souboru
+        self.canvas_gpu.update_data(self.file.ndar_list[2:], self.index_gpu)  # _,,_
 
     def _run(self):
         """Funkce slouží k hlavnímu chodu, opakuje se každou sekundu"""
