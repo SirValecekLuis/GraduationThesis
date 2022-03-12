@@ -207,7 +207,7 @@ class Graph(FigureCanvasQTAgg):
 
 
 # Testovací část, spouští se pokud se spouští přímo zdrojový kód temp_backend.py
-def test(cpu_object: CPU, gpu_object: GPU) -> print:
+def test(cpu_object, gpu_object) -> print:
     """
     Funkce slouží k testování a základnímu ladění programu.
     :param cpu_object: Objekt typu CPU
@@ -215,22 +215,20 @@ def test(cpu_object: CPU, gpu_object: GPU) -> print:
     :return: Vytiskne veškerá senzorická data s jejími názvy a dalšími informacemi, slouží pro debugging.
     """
 
-    for i in cpu_object.cpu.Sensors:
+    for i in cpu_object.Sensors:
         try:
             print(i.Value, i.Name, i.Identifier, i.SensorType)
         except:
             print("except")
             print(i.Value, i.Name, i.Identifier, i)
     print(60 * "#")
-    for i in gpu_object.gpu.Sensors:
+    for i in gpu_object.Sensors:
         try:
             print(i.Value, i.Name, i.Identifier, i.SensorType)
         except:
             print("except")
             print(i.Value, i.Name, i.Identifier, i)
-    print(cpu_object.lowest_temp, cpu_object.highest_temp)
-    print(gpu_object.lowest_temp, gpu_object.highest_temp)
-    time.sleep(2)
+    time.sleep(5)
 
 
 def main():
@@ -254,8 +252,8 @@ def main():
             print(gpu.lowest_temp, gpu.highest_temp)
             time.sleep(2)
         else:
-            cpu = CPU(computer_object.cpu_object)
-            gpu = GPU(computer_object.gpu_object)
+            cpu = computer_object.cpu_object
+            gpu = computer_object.gpu_object
             computer_object.update()
             test(cpu, gpu)
 
