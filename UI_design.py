@@ -533,7 +533,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
 
         # CPU část
         self.cpu_name_label.setText(self.font_func(self.parse_func(self.cpu_name_label.text()) + self.cpu.name))
-        self.cpu_cores_label.setText(self.font_func(self.parse_func(self.cpu_cores_label.text()) + self.cpu.cores))
+        self.cpu_cores_label.setText(self.font_func(self.parse_func(self.cpu_cores_label.text()) + str(self.cpu.cores)))
         self.cpu_frequency_label.setText(self.font_func(self.parse_func(self.cpu_frequency_label.text())
                                                         + str(self.cpu.frequency)))
 
