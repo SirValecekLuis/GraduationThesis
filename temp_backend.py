@@ -61,10 +61,8 @@ class CPU:
             elif sensor_name == "/amdcpu/0/clock/1" or sensor_name == "/intelcpu/0/clock/1":
                 self.frequency = math.ceil(sensor.Value / 100) * 100  # Frekvence v Mhz
 
-            if re.search("Core #[1] - #[0-9]*[0-9]", str(sensor.Name)) is not None:
-                self.cores = re.search("- #.*", str(sensor.Name)).group().replace("- #", "")
-            elif "/amdcpu/0/load/" in sensor_name or "/intelcpu/0/load/" in sensor_name:
-                if int(sensor_name[-1]) > self.cores:
+            if "/amdcpu/0/load/" in sensor_name or "/intelcpu/0/load/" in sensor_name:
+                if int(sensor_name[-1]) > int(self.cores):
                     self.cores = sensor_name[-1]
 
     def __repr__(self):
