@@ -456,7 +456,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.LABEL_CPU.setText(_translate("main_window",
                                           f"{self.html_small_title_head}Nastavení osy Y pro CPU:{self.html_font_end}"))
 
-        self.button_css = """
+        button_css = """
         QPushButton{
             color: white;
             background: #0577a8;
@@ -474,7 +474,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
         }
         """
 
-        self.button_pause_css = """
+        button_pause_css = """
         QPushButton{
         color:white;
         background: #a81f1f;
@@ -492,7 +492,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
         }
         """
 
-        self.button_resume_css = """
+        button_resume_css = """
         QPushButton{
         color:white;
         background: #26a14d;
@@ -510,20 +510,20 @@ class UIMainWindow(QtWidgets.QMainWindow):
         }
         """
 
-        self.cpu_load_btn.setStyleSheet(self.button_css)
+        self.cpu_load_btn.setStyleSheet(button_css)
         self.cpu_load_btn.setToolTip("Zobrazí zatížení procesoru")
-        self.cpu_temp_btn.setStyleSheet(self.button_css)
+        self.cpu_temp_btn.setStyleSheet(button_css)
         self.cpu_temp_btn.setToolTip("Zobrazí teplotu procesoru")
-        self.gpu_fan_btn.setStyleSheet(self.button_css)
+        self.gpu_fan_btn.setStyleSheet(button_css)
         self.gpu_fan_btn.setToolTip("Zobrazí zatížení větráčků")
-        self.gpu_memory_btn.setStyleSheet(self.button_css)
+        self.gpu_memory_btn.setStyleSheet(button_css)
         self.gpu_memory_btn.setToolTip("Zobrazí vytížení paměti VRAM")
-        self.gpu_temp_btn.setStyleSheet(self.button_css)
+        self.gpu_temp_btn.setStyleSheet(button_css)
         self.gpu_temp_btn.setToolTip("Zobrazí teplotu grafické karty")
 
-        self.resume_graphs_btn.setStyleSheet(self.button_resume_css)
+        self.resume_graphs_btn.setStyleSheet(button_resume_css)
         self.resume_graphs_btn.setToolTip("Vykreslí znovu grafy, pokud jsou pozastaveny")
-        self.pause_graphs_btn.setStyleSheet(self.button_pause_css)
+        self.pause_graphs_btn.setStyleSheet(button_pause_css)
         self.pause_graphs_btn.setToolTip("Pozastaví grafy pro práci s grafem")
 
         self.q_tab1.setTabText(self.q_tab1.indexOf(self.tab_2), _translate("main_window", "Grafy"))
