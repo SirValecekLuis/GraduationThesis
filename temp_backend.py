@@ -179,19 +179,20 @@ class Graph(FigureCanvasQTAgg):
         if len(data) == 2:
             index = 1
             self.data_y = data[index]  # 2 sloupce, 2. sloupec je teplota
-            self.sub.set_title("Hodnoty procesoru")
+            self.sub.set_title("Procesor")
         else:
-            self.sub.set_title("Hodnoty grafické karty")
+            self.sub.set_title("Grafická karta")
             self.data_y = data[index]  # 3 sloupce, 1. sloupec je teplota
 
         self.data_x = np.linspace(0, len(data[0]), len(data[0]))  # Vytvořím si pole odpovídající velikosti dat
         self.graph, = self.sub.plot(self.data_x, self.data_y,
                                     "-b", label=header[index])  # Vykreslím teplotu vzhledem k času
-        self.sub.legend(loc=1)  # Zobrazí legendu v pravo nahoře
+        self.legend = self.sub.legend(loc='upper center', fancybox=True, bbox_to_anchor=(0.5, 1.05), shadow=True)
+        # Nastavení legendy
         self.sub.set_xlabel("t (čas)")
         self.sub.set_ylabel(header[index])
         self.sub.tick_params(bottom=False)  # Oddělá prostřední čárky pro časovou osu
-        self.sub.set_xticks([])
+        self.sub.set_xticks([])  # Oddělá čísla pro časovou osu
 
     def update_data(self, data: np.ndarray, index: int):
         """Funkce slouží k novému nahrání dat z předešlé doby"""
@@ -201,6 +202,7 @@ class Graph(FigureCanvasQTAgg):
         self.sub.set_xlim(0, len(data[0]))  # Data[0] znamená jen kvůli počtu sekund (počet měření = počet s)
         self.sub.set_ylim(min(data[index]) - 0.5, max(data[index]) + 1.5)  # Nastavím nový rozsah sloupce
         self.sub.set_ylabel(self.header[index])  # Přejmenuji Y osu
+        self.legend.get_texts()[0].set_text(self.header[index])  # Přejmenuji legendu grafu
         self.graph.figure.canvas.draw()  # Zobrazí aktuální graf
 
 

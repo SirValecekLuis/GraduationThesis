@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from temp_backend import HWMInit, CPU, GPU, File, Graph
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar  # Toolbar pro Canvas
 import os
 
 
@@ -76,6 +76,9 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.GPU_WIDGET = QtWidgets.QWidget(self.tab_2)
         self.CPU_LAYOUT = QtWidgets.QVBoxLayout(self.CPU_WIDGET)
         self.GPU_LAYOUT = QtWidgets.QVBoxLayout(self.GPU_WIDGET)
+        self.pause_graphs_btn = QtWidgets.QPushButton(self.tab_2)
+        self.resume_graphs_btn = QtWidgets.QPushButton(self.tab_2)
+        self.resume_graphs_btn.setEnabled(False)
         self.gpu_temp_btn = QtWidgets.QPushButton(self.tab_2)
         self.gpu_fan_btn = QtWidgets.QPushButton(self.tab_2)
         self.gpu_memory_btn = QtWidgets.QPushButton(self.tab_2)
@@ -124,6 +127,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
 
         # Timer pro opakovaní a hlavní spuštění aplikace
         self.timer = QtCore.QTimer()
+        self.update_graphs_bool = True
         self._set_labels()
         self._show_graphs()
         self._run()
@@ -326,9 +330,15 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.CPU_LAYOUT.setContentsMargins(0, 0, 0, 0)
         self.GPU_LAYOUT.setContentsMargins(0, 0, 0, 0)
 
-        self.gpu_temp_btn.setGeometry(QtCore.QRect(30, 680, 81, 21))
-        self.gpu_fan_btn.setGeometry(QtCore.QRect(262, 680, 151, 21))
-        self.gpu_memory_btn.setGeometry(QtCore.QRect(121, 680, 131, 21))
+        self.pause_graphs_btn.setGeometry(QtCore.QRect(140, 535, 101, 23))
+        self.resume_graphs_btn.setGeometry(QtCore.QRect(30, 535, 101, 23))
+
+        self.pause_graphs_btn.clicked.connect(self._pause_resume_graphs)
+        self.resume_graphs_btn.clicked.connect(self._pause_resume_graphs)
+
+        self.gpu_temp_btn.setGeometry(QtCore.QRect(30, 680, 101, 21))
+        self.gpu_fan_btn.setGeometry(QtCore.QRect(301, 680, 131, 21))
+        self.gpu_memory_btn.setGeometry(QtCore.QRect(140, 680, 151, 21))
         self.cpu_temp_btn.setGeometry(QtCore.QRect(30, 321, 101, 21))
         self.cpu_load_btn.setGeometry(QtCore.QRect(140, 321, 101, 21))
 
@@ -416,9 +426,13 @@ class UIMainWindow(QtWidgets.QMainWindow):
                                                    f"{self.html_font_end}")
                                         )
 
-        self.q_tab1.setTabText(self.q_tab1.indexOf(self.tab_1), _translate("main_window", "Sensory"))
+        self.q_tab1.setTabText(self.q_tab1.indexOf(self.tab_1), _translate("main_window", "Senzory"))
+
+        self.resume_graphs_btn.setText(_translate("main_window", "Spustit grafy"))
+        self.pause_graphs_btn.setText(_translate("main_window", "Zastavit grafy"))
+
         self.gpu_temp_btn.setText(_translate("main_window", "Teplota GPU"))
-        self.gpu_fan_btn.setText(_translate("main_window", "Zatížení větráčku na GPU"))
+        self.gpu_fan_btn.setText(_translate("main_window", "Větráčky na GPU"))
         self.gpu_memory_btn.setText(_translate("main_window", "Vytížení paměti VRAM"))
         self.cpu_temp_btn.setText(_translate("main_window", "Teplota CPU"))
         self.cpu_load_btn.setText(_translate("main_window", "Zatížení CPU"))
@@ -426,7 +440,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.LABEL_INFO.setText(_translate("main_window", f"{self.html_small_title_head}"
                                                           f"Grafy znázorňující informace v závislosti na čase."
                                                           f"{self.html_text_head}"
-                                                          f"Pro výběr stačí pomocí zakřížkování vybrat dané"
+                                                          f"Pro výběr stačí pomocí tlačítka vybrat dané"
                                                           f"{self.html_text_head}"
                                                           f"informace, které se mají na ose Y zobrazit."
                                                           f"<br/><br/>Osa X je popsaná časově, každá aktualizace"
@@ -441,6 +455,76 @@ class UIMainWindow(QtWidgets.QMainWindow):
                                           f"{self.html_small_title_head}Nastavení osy Y pro GPU:{self.html_font_end}"))
         self.LABEL_CPU.setText(_translate("main_window",
                                           f"{self.html_small_title_head}Nastavení osy Y pro CPU:{self.html_font_end}"))
+
+        self.button_css = """
+        QPushButton{
+            color: white;
+            background: #0577a8;
+            padding: 5px 10px;
+            border-radius: 2px;
+            font-weight: bold;
+            font-size: 8pt;
+            outline: none;
+        }
+        
+        QPushButton:hover{
+            border: 1px #C6C6C6 solid;
+            color: #fff;
+            background: #0892D0;
+        }
+        """
+
+        self.button_pause_css = """
+        QPushButton{
+        color:white;
+        background: #a81f1f;
+        padding: 5px 10px;
+        border-radius: 2px;
+        font-weight: bold;
+        font-size: 8pt;
+        outline: none;
+        }
+        
+        QPushButton:hover{
+            border: 1px #C6C6C6 solid;
+            color: #fff;
+            background: #c90303;
+        }
+        """
+
+        self.button_resume_css = """
+        QPushButton{
+        color:white;
+        background: #26a14d;
+        padding: 5px 10px;
+        border-radius: 2px;
+        font-weight: bold;
+        font-size: 8pt;
+        outline: none;
+        }
+        
+        QPushButton:hover{
+            border: 1px #C6C6C6 solid;
+            color: #fff;
+            background: #05c241;
+        }
+        """
+
+        self.cpu_load_btn.setStyleSheet(self.button_css)
+        self.cpu_load_btn.setToolTip("Zobrazí zatížení procesoru")
+        self.cpu_temp_btn.setStyleSheet(self.button_css)
+        self.cpu_temp_btn.setToolTip("Zobrazí teplotu procesoru")
+        self.gpu_fan_btn.setStyleSheet(self.button_css)
+        self.gpu_fan_btn.setToolTip("Zobrazí zatížení větráčků")
+        self.gpu_memory_btn.setStyleSheet(self.button_css)
+        self.gpu_memory_btn.setToolTip("Zobrazí vytížení paměti VRAM")
+        self.gpu_temp_btn.setStyleSheet(self.button_css)
+        self.gpu_temp_btn.setToolTip("Zobrazí teplotu grafické karty")
+
+        self.resume_graphs_btn.setStyleSheet(self.button_resume_css)
+        self.resume_graphs_btn.setToolTip("Vykreslí znovu grafy, pokud jsou pozastaveny")
+        self.pause_graphs_btn.setStyleSheet(self.button_pause_css)
+        self.pause_graphs_btn.setToolTip("Pozastaví grafy pro práci s grafem")
 
         self.q_tab1.setTabText(self.q_tab1.indexOf(self.tab_2), _translate("main_window", "Grafy"))
 
@@ -492,15 +576,32 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.label_time.setText(self.font_func(self.TIME_TEXT + f"{hours}h {mins}m {secs}s"))
         self.label_data_amount.setText(self.font_func(self.DATA_AMOUNT_TEXT + str(lines)))
 
+    def _pause_resume_graphs(self):
+        """Slouží k pozastavení, nebo spuštění grafů na základě stisknutého tlačítka"""
+
+        if self.sender() == self.resume_graphs_btn:  # Pokud kliknu na tlačítko vykreslování grafů
+            self.update_graphs_bool = True
+            self.pause_graphs_btn.setEnabled(True)
+            self.resume_graphs_btn.setEnabled(False)
+        else:  # Pokud kliknu na tlačítko pozastavení vykreslování grafů
+            self.update_graphs_bool = False
+            self.pause_graphs_btn.setEnabled(False)
+            self.resume_graphs_btn.setEnabled(True)
+
     def _show_graphs(self):
         """Tato funkce slouží k zobrazení grafů v 2. tabu"""
 
+        del NavigationToolbar.toolitems[-2:]  # Smažu tlačítko pro uložení, shazovalo aplikaci + oddělovník
+        # Pro více informací print(NavigationToolbar.toolitems) - output je list
+
         self.canvas_cpu = Graph(self.file.ndar_list[0:2], self.file.header[0:2])
-        self.CPU_LAYOUT.addWidget(NavigationToolbar(self.canvas_cpu, self))
+        toolbar = NavigationToolbar(self.canvas_cpu, self)
+        self.CPU_LAYOUT.addWidget(toolbar)
         self.CPU_LAYOUT.addWidget(self.canvas_cpu)
 
         self.canvas_gpu = Graph(self.file.ndar_list[2:], self.file.header[2:])
-        self.GPU_LAYOUT.addWidget(NavigationToolbar(self.canvas_gpu, self))
+        toolbar2 = NavigationToolbar(self.canvas_gpu, self)
+        self.GPU_LAYOUT.addWidget(toolbar2)
         self.GPU_LAYOUT.addWidget(self.canvas_gpu)
 
         self.index_cpu = 1  # Teplota je 2. v csv
@@ -535,10 +636,11 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.file.write_data(self.cpu, self.gpu)
         self.file.update_ndar_list()
         self._set_changing_labels()
-        self._update_graphs()
+        if self.update_graphs_bool:  # Pokud není pozastavena aktualizace grafů, tak aktualizuji graf
+            self._update_graphs()
 
-        # Dodělat tlačítka zastavit měření a spustit měření, dodělat vyskakovací okno, pokud otevírám aplikaci
-        # po 2. a získat CSS styly na tlačítka + možná upravit víc graf + zkusit spustit bez správce úloh a ošetřit
+        # dodělat vyskakovací okno, pokud otevírám aplikaci
+        # po 2., zkusit spustit bez správce úloh a ošetřit
 
 
 def main():

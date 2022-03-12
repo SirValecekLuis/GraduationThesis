@@ -1,61 +1,49 @@
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 import sys
-import matplotlib
-import random
-
-matplotlib.use('Qt5Agg')
-
-from PyQt5 import QtCore, QtGui, QtWidgets
-
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
-from matplotlib.figure import Figure
 
 
-class MplCanvas(FigureCanvasQTAgg):
-
+class Window(QMainWindow):
     def __init__(self):
-        fig = Figure()
-        super().__init__(fig)
-        self.axes = fig.add_subplot(2, 1, 1)
-        self.axes2 = fig.add_subplot(2, 1, 2)
-        self.toolbar = NavigationToolbar(canvas=self, parent=None)
-        self.obrazek, = self.axes.plot([0, 1, 2, 3, 4], [10, 1, 20, 3, 40])
-        self.obrazek2, = self.axes2.plot([0, 1, 2, 3, 4], [1, 6, 2, 6, 3])
+        super().__init__()
 
+        # set the title
+        self.setWindowTitle("Python")
 
-class MainWindow(QtWidgets.QMainWindow):
+        # setting  the geometry of window
+        self.setGeometry(60, 60, 600, 400)
 
-    def __init__(self, *args, **kwargs):
-        super(MainWindow, self).__init__(*args, **kwargs)
+        # setting status bar message
+        self.statusBar().showMessage("This is status bar")
 
-        self.sc = MplCanvas()
-        self.obrazek = self.sc.obrazek
+        # setting  border
+        self.statusBar().setStyleSheet("border :3px solid black;")
 
-        layout = QtWidgets.QVBoxLayout()
+        # setting tool tip for status bar
+        self.statusBar().setToolTip("Hello ! from status bar")
 
-        layout.addWidget(self.sc)
-        self.btn = QtWidgets.QPushButton("Tlačítkoooo")
-        layout.addWidget(self.btn)
-        self.btn.pressed.connect(self.timer)
-        self.time = QtCore.QTimer()
-        self.time.timeout.connect(self.timer)
+        # creating a label widget
+        self.label_1 = QLabel("status bar", self)
 
-        # Create a placeholder widget to hold our toolbar and canvas.
-        widget = QtWidgets.QWidget()
-        widget.setLayout(layout)
-        self.setCentralWidget(widget)
+        # moving position
+        self.label_1.move(100, 100)
 
+        # setting up the border
+        self.label_1.setStyleSheet("border :1px solid blue;")
+
+        # resizing label
+        self.label_1.adjustSize()
+
+        # show all the widgets
         self.show()
 
-    def timer(self):
-        self.time.start(1000)
-        data = [random.randint(1, 10) for _ in range(5)]
-        second_list = [1, 10, 20, 50, 100]
-        self.sc.axes.set_ylim(0, 100)
-        self.sc.axes.set_xlim(0, 100)
-        self.obrazek.set_data(data, second_list)
-        self.obrazek.figure.canvas.draw()
 
+# create pyqt5 app
+App = QApplication(sys.argv)
 
-app = QtWidgets.QApplication(sys.argv)
-w = MainWindow()
-app.exec_()
+# create the instance of our Window
+window = Window()
+
+# start the app
+sys.exit(App.exec())
