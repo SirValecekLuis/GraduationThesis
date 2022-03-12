@@ -533,7 +533,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
 
         # CPU část
         self.cpu_name_label.setText(self.font_func(self.parse_func(self.cpu_name_label.text()) + self.cpu.name))
-        self.cpu_cores_label.setText(self.font_func(self.parse_func(self.cpu_cores_label.text()) + str(self.cpu.cores)))
+        self.cpu_cores_label.setText(self.font_func(self.parse_func(self.cpu_cores_label.text()) + self.cpu.cores))
         self.cpu_frequency_label.setText(self.font_func(self.parse_func(self.cpu_frequency_label.text())
                                                         + str(self.cpu.frequency)))
 
@@ -638,9 +638,6 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self._set_changing_labels()
         if self.update_graphs_bool:  # Pokud není pozastavena aktualizace grafů, tak aktualizuji graf
             self._update_graphs()
-
-        # dodělat vyskakovací okno, pokud otevírám aplikaci
-        # po 2., zkusit spustit bez správce úloh a ošetřit
 
 
 def main():
