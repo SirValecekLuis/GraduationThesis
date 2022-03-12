@@ -45,11 +45,13 @@ class CPU:
     def __init__(self, cpu):
         self.cpu = cpu
         self.name = self.cpu.Name
+        self.cores = 0
+
+        if self.name.count("NVIDIA") == 2:
+            self.name = self.name.replace("NVIDIA ", "", 1)
 
         for sensor in cpu.Sensors:
             sensor_name = str(sensor.Identifier)
-            print(sensor_name)
-            print(sensor.Value)
             if sensor_name == "/amdcpu/0/load/0" or sensor_name == "/intelcpu/0/load/0":
                 self.load = round(sensor.Value, 1)  # Vytížení v %
             elif sensor_name == "/amdcpu/0/temperature/0" or sensor_name == "/intelcpu/0/temperature/0":
@@ -61,8 +63,9 @@ class CPU:
 
             if re.search("Core #[1] - #[0-9]*[0-9]", str(sensor.Name)) is not None:
                 self.cores = re.search("- #.*", str(sensor.Name)).group().replace("- #", "")
-            else:
-                self.cores = "x"
+            elif "/amdcpu/0/load/" in sensor_name or "/intelcpu/0/load/" in sensor_name:
+                if int(sensor_name[-1]) > self.cores:
+                    self.cores = sensor_name[-1]
 
     def __repr__(self):
         return f"{self.load},{self.temperature}"
@@ -251,14 +254,11 @@ def main():
             gpu = GPU(computer_object.gpu_object)
             file.write_data(cpu, gpu)
             file.update_ndar_list()
-            print(file.ndar_list)
-            print(cpu.lowest_temp, cpu.highest_temp)
-            print(gpu.lowest_temp, gpu.highest_temp)
             time.sleep(2)
         else:
+            computer_object.update()
             cpu = computer_object.cpu_object
             gpu = computer_object.gpu_object
-            computer_object.update()
             test(cpu, gpu)
 
 
