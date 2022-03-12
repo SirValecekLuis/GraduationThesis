@@ -47,9 +47,6 @@ class CPU:
         self.name = self.cpu.Name
         self.cores = 0
 
-        if self.name.count("NVIDIA") == 2:
-            self.name = self.name.replace("NVIDIA ", "", 1)
-
         for sensor in cpu.Sensors:
             sensor_name = str(sensor.Identifier)
             if sensor_name == "/amdcpu/0/load/0" or sensor_name == "/intelcpu/0/load/0":
@@ -78,6 +75,9 @@ class GPU:
     def __init__(self, gpu):
         self.gpu = gpu
         self.name = self.gpu.Name
+
+        if self.name.count("NVIDIA") == 2:
+            self.name = self.name.replace("NVIDIA ", "", 1)
 
         for sensor in gpu.Sensors:  # Potřeba otestovat, jestli je to "atigpu" nenalezeno v dokumentaci!
             sensor_name = str(sensor.Identifier)
