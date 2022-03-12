@@ -48,6 +48,8 @@ class CPU:
 
         for sensor in cpu.Sensors:
             sensor_name = str(sensor.Identifier)
+            print(sensor_name)
+            print(sensor.Value)
             if sensor_name == "/amdcpu/0/load/0" or sensor_name == "/intelcpu/0/load/0":
                 self.load = round(sensor.Value, 1)  # Vytížení v %
             elif sensor_name == "/amdcpu/0/temperature/0" or sensor_name == "/intelcpu/0/temperature/0":
@@ -59,6 +61,8 @@ class CPU:
 
             if re.search("Core #[1] - #[0-9]*[0-9]", str(sensor.Name)) is not None:
                 self.cores = re.search("- #.*", str(sensor.Name)).group().replace("- #", "")
+            else:
+                self.cores = "x"
 
     def __repr__(self):
         return f"{self.load},{self.temperature}"
@@ -242,9 +246,9 @@ def main():
     inp = input("Zadej režim: ") == "normal"
     while True:
         if inp:
+            computer_object.update()
             cpu = CPU(computer_object.cpu_object)
             gpu = GPU(computer_object.gpu_object)
-            computer_object.update()
             file.write_data(cpu, gpu)
             file.update_ndar_list()
             print(file.ndar_list)

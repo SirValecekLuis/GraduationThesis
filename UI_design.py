@@ -93,6 +93,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
 
         # Datová část
         self.computer_object = HWMInit()
+        self.computer_object.update()
         self.file = File("data.csv")
         self.cpu = CPU(self.computer_object.cpu_object)
         self.gpu = GPU(self.computer_object.gpu_object)
