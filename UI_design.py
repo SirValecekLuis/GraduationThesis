@@ -13,6 +13,15 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.setMaximumSize(1024, 768)
         self.setGeometry(400, 150, 1024, 768)
 
+        # Nastavení ikony
+        self.icon = QtGui.QIcon()
+        self.icon.addPixmap(QtGui.QPixmap("window-icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.setWindowIcon(self.icon)
+
+        # Spuštění dialogového okna
+        if os.path.exists("data.csv"):
+            self._dialog_file()
+
         # 1. tab
         self.tab_1 = QtWidgets.QWidget()
         self.q_tab1 = QtWidgets.QTabWidget()
@@ -104,11 +113,6 @@ class UIMainWindow(QtWidgets.QMainWindow):
             self.file.update_ndar_list()
         # Konec datové části
 
-        # Nastavení ikony
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("window-icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.setWindowIcon(icon)
-
         # Funkce s nastavením
         self._setup_ui()
 
@@ -134,7 +138,55 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self._run()
         self.timer.timeout.connect(self._run)
 
-    def _setup_ui(self):
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        """Funkce přepisuje event, neboli událost uzavření aplikace"""
+
+        msgbox = QtWidgets.QMessageBox()
+        msgbox.setWindowIcon(self.icon)
+        msgbox.setWindowTitle("Ukončení aplikace")
+        msgbox.setText("Přejete si ukončit aplikaci?")
+        msgbox.setIcon(QtWidgets.QMessageBox.Question)
+
+        msgbox.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        msgbox.setDefaultButton(QtWidgets.QMessageBox.No)
+
+        button_yes = msgbox.button(QtWidgets.QMessageBox.Yes)
+        button_yes.setText("Ano")
+
+        button_no = msgbox.button(QtWidgets.QMessageBox.No)
+        button_no.setText("Ne")
+
+        msgbox.exec_()
+
+        if msgbox.clickedButton() == button_yes:
+            a0.accept()
+        else:
+            a0.ignore()
+
+    def _dialog_file(self) -> None:
+        """Slouží k zavolání dialogového okna, aby mohl uživatel smazat naposledy naměřená data"""
+        msgbox = QtWidgets.QMessageBox()
+        msgbox.setWindowIcon(self.icon)
+        msgbox.setWindowTitle("Smazat naměřená data?")
+
+        msgbox.setText("Smazat soubory s daty od posledního měření?")
+        msgbox.setIcon(QtWidgets.QMessageBox.Question)
+
+        msgbox.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        msgbox.setDefaultButton(QtWidgets.QMessageBox.No)
+
+        button_yes = msgbox.button(QtWidgets.QMessageBox.Yes)
+        button_yes.setText("Ano")
+
+        button_no = msgbox.button(QtWidgets.QMessageBox.No)
+        button_no.setText("Ne")
+
+        msgbox.exec_()
+
+        if msgbox.clickedButton() == button_yes:
+            os.remove("data.csv")
+
+    def _setup_ui(self) -> None:
         """
         setup_ui slouží k nastavení pozic a hodnot pro veškeré Widgety
         Proměnné psané tiskacím by neměly být upravovány
@@ -364,7 +416,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
         # Nastavení CSS
         self._style_sheet()
 
-    def _style_sheet(self):
+    def _style_sheet(self) -> None:
         """Nastavování HTML stylů pro každý text"""
 
         _translate = QtCore.QCoreApplication.translate
@@ -458,58 +510,58 @@ class UIMainWindow(QtWidgets.QMainWindow):
                                           f"{self.html_small_title_head}Nastavení osy Y pro CPU:{self.html_font_end}"))
 
         button_css = """
-        QPushButton{
-            color: white;
-            background: #0577a8;
-            padding: 5px 10px;
-            border-radius: 2px;
-            font-weight: bold;
-            font-size: 8pt;
-            outline: none;
-        }
-        
-        QPushButton:hover{
-            border: 1px #C6C6C6 solid;
-            color: #fff;
-            background: #0892D0;
-        }
-        """
+    QPushButton{
+        color: white;
+        background: #0577a8;
+        padding: 5px 10px;
+        border-radius: 2px;
+        font-weight: bold;
+        font-size: 8pt;
+        outline: none;
+    }
+    
+    QPushButton:hover{
+        border: 1px #C6C6C6 solid;
+        color: #fff;
+        background: #0892D0;
+    }
+    """
 
         button_pause_css = """
-        QPushButton{
-        color:white;
-        background: #a81f1f;
-        padding: 5px 10px;
-        border-radius: 2px;
-        font-weight: bold;
-        font-size: 8pt;
-        outline: none;
-        }
-        
-        QPushButton:hover{
-            border: 1px #C6C6C6 solid;
-            color: #fff;
-            background: #c90303;
-        }
-        """
+    QPushButton{
+    color:white;
+    background: #a81f1f;
+    padding: 5px 10px;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 8pt;
+    outline: none;
+    }
+    
+    QPushButton:hover{
+        border: 1px #C6C6C6 solid;
+        color: #fff;
+        background: #c90303;
+    }
+    """
 
         button_resume_css = """
-        QPushButton{
-        color:white;
-        background: #26a14d;
-        padding: 5px 10px;
-        border-radius: 2px;
-        font-weight: bold;
-        font-size: 8pt;
-        outline: none;
-        }
-        
-        QPushButton:hover{
-            border: 1px #C6C6C6 solid;
-            color: #fff;
-            background: #05c241;
-        }
-        """
+    QPushButton{
+    color:white;
+    background: #26a14d;
+    padding: 5px 10px;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 8pt;
+    outline: none;
+    }
+    
+    QPushButton:hover{
+        border: 1px #C6C6C6 solid;
+        color: #fff;
+        background: #05c241;
+    }
+    """
 
         self.cpu_load_btn.setStyleSheet(button_css)
         self.cpu_load_btn.setToolTip("Zobrazí zatížení procesoru")
@@ -529,7 +581,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
 
         self.q_tab1.setTabText(self.q_tab1.indexOf(self.tab_2), _translate("main_window", "Grafy"))
 
-    def _set_labels(self):
+    def _set_labels(self) -> None:
         """Funkce slouží k nastavení všech labelů v 1. tabu"""
 
         # CPU část
@@ -544,7 +596,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.gpu_total_memory_label.setText(self.font_func(self.parse_func(self.gpu_total_memory_label.text())
                                                            + str(self.gpu.memory_total)))
 
-    def _set_changing_labels(self):
+    def _set_changing_labels(self) -> None:
         """Tato funkce slouží k pravidelné obměně informací na 1. tabu, jelikož tyto informace nejsou konstatní"""
 
         # Pokračování CPU části, která se mění
@@ -577,22 +629,10 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.label_time.setText(self.font_func(self.TIME_TEXT + f"{hours}h {mins}m {secs}s"))
         self.label_data_amount.setText(self.font_func(self.DATA_AMOUNT_TEXT + str(lines)))
 
-    def _pause_resume_graphs(self):
-        """Slouží k pozastavení, nebo spuštění grafů na základě stisknutého tlačítka"""
-
-        if self.sender() == self.resume_graphs_btn:  # Pokud kliknu na tlačítko vykreslování grafů
-            self.update_graphs_bool = True
-            self.pause_graphs_btn.setEnabled(True)
-            self.resume_graphs_btn.setEnabled(False)
-        else:  # Pokud kliknu na tlačítko pozastavení vykreslování grafů
-            self.update_graphs_bool = False
-            self.pause_graphs_btn.setEnabled(False)
-            self.resume_graphs_btn.setEnabled(True)
-
-    def _show_graphs(self):
+    def _show_graphs(self) -> None:
         """Tato funkce slouží k zobrazení grafů v 2. tabu"""
 
-        del NavigationToolbar.toolitems[-2:]  # Smažu tlačítko pro uložení, shazovalo aplikaci + oddělovník
+        del NavigationToolbar.toolitems[-4:]  # Smažu tlačítko pro uložení, shazovalo aplikaci + oddělovník
         # Pro více informací print(NavigationToolbar.toolitems) - output je list
 
         self.canvas_cpu = Graph(self.file.ndar_list[0:2], self.file.header[0:2])
@@ -608,7 +648,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.index_cpu = 1  # Teplota je 2. v csv
         self.index_gpu = 0  # Teplota je 3. v csv (ale začínám od 3. sloupce, takže je to nultá věc)
 
-    def _update_graphs(self):
+    def _update_graphs(self) -> None:
         """Tato funkce slouží k tomu, když uživatel si přeje zobrazit jiný graf, nebo k aktualizaci stávajícího grafu"""
 
         dict_btn = {self.cpu_load_btn: 0, self.cpu_temp_btn: 1, self.gpu_temp_btn: 2, self.gpu_fan_btn: 3,
@@ -624,10 +664,23 @@ class UIMainWindow(QtWidgets.QMainWindow):
         elif index >= 2:
             self.index_gpu = index - 2  # Odečítám 2, protože nezačínám od 2 ale od 0, mám jenom část listu
 
-        self.canvas_cpu.update_data(self.file.ndar_list[0:2], self.index_cpu)  # Dodávám index aktuálního csv souboru
+        self.canvas_cpu.update_data(self.file.ndar_list[0:2],
+                                    self.index_cpu)  # Dodávám index aktuálního csv souboru
         self.canvas_gpu.update_data(self.file.ndar_list[2:], self.index_gpu)  # _,,_
 
-    def _run(self):
+    def _pause_resume_graphs(self) -> None:
+        """Slouží k pozastavení, nebo spuštění grafů na základě stisknutého tlačítka"""
+
+        if self.sender() == self.resume_graphs_btn:  # Pokud kliknu na tlačítko vykreslování grafů
+            self.update_graphs_bool = True
+            self.pause_graphs_btn.setEnabled(True)
+            self.resume_graphs_btn.setEnabled(False)
+        else:  # Pokud kliknu na tlačítko pozastavení vykreslování grafů
+            self.update_graphs_bool = False
+            self.pause_graphs_btn.setEnabled(False)
+            self.resume_graphs_btn.setEnabled(True)
+
+    def _run(self) -> None:
         """Funkce slouží k hlavnímu chodu, opakuje se každou sekundu"""
 
         self.timer.start(1000)

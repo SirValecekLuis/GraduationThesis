@@ -1,4 +1,3 @@
-import math
 import time
 import clr  # Pythonnet modul, zajišťuje propojení s API aplikace
 import numpy as np
@@ -55,11 +54,12 @@ class CPU:
                 self.lowest_temp = round(sensor.Min, 1)
                 self.highest_temp = round(sensor.Max, 1)
             elif sensor_name == "/amdcpu/0/clock/1" or sensor_name == "/intelcpu/0/clock/1":
-                self.frequency = math.ceil(sensor.Value / 100) * 100  # Frekvence v Mhz
+                print(sensor.Value)
+                self.frequency = int(round(sensor.Value, -2))  # Frekvence v Mhz zaokrouhleno na stovky a na celé číslo
 
             if "/amdcpu/0/load/" in sensor_name or "/intelcpu/0/load/" in sensor_name:  # Počet jader
                 if int(sensor_name[-1]) > int(self.cores):
-                    self.cores = sensor_name[-1]    # Ponechávám jako text, abych mohl dát do labelu později
+                    self.cores = sensor_name[-1]  # Ponechávám jako text, abych mohl dát do labelu později
 
     def __repr__(self):
         return f"{self.load},{self.temperature}"
@@ -174,6 +174,7 @@ class Graph(FigureCanvasQTAgg):
     def __init__(self, data: np.ndarray, header: list):
         # https://matplotlib.org/3.5.1/gallery/user_interfaces/embedding_in_qt_sgskip.html
         figure = Figure()  # Vytvořím základní místo pro graf
+        figure.tight_layout()
         super().__init__(figure)  # Dědím ze třídy FigureCanvas pro svoji proměnnou figure
         self.sub = figure.add_subplot()  # Vytvořím jednotlivé políčko pro graf
 
@@ -219,14 +220,14 @@ def test(cpu_object, gpu_object) -> print:
 
     for i in cpu_object.Sensors:
         try:
-            print(i.Value, i.Name, i.Identifier, i.SensorType)
+            print(i.Value, i.Name, i.Identifier)
         except:
             print("except")
             print(i.Value, i.Name, i.Identifier, i)
     print(60 * "#")
     for i in gpu_object.Sensors:
         try:
-            print(i.Value, i.Name, i.Identifier, i.SensorType)
+            print(i.Value, i.Name, i.Identifier)
         except:
             print("except")
             print(i.Value, i.Name, i.Identifier, i)
