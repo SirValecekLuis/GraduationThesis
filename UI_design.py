@@ -164,7 +164,11 @@ class UIMainWindow(QtWidgets.QMainWindow):
             a0.ignore()
 
     def _dialog_file(self) -> None:
-        """Slouží k zavolání dialogového okna, aby mohl uživatel smazat naposledy naměřená data"""
+        """
+        Slouží k zavolání dialogového okna, aby mohl uživatel smazat naposledy naměřená data, pokud existuje
+        soubor s daty.
+        """
+
         msgbox = QtWidgets.QMessageBox()
         msgbox.setWindowIcon(self.icon)
         msgbox.setWindowTitle("Smazat naměřená data?")
@@ -176,15 +180,22 @@ class UIMainWindow(QtWidgets.QMainWindow):
         msgbox.setDefaultButton(QtWidgets.QMessageBox.No)
 
         button_yes = msgbox.button(QtWidgets.QMessageBox.Yes)
-        button_yes.setText("Ano")
+        button_yes.setText("Smazat")
 
         button_no = msgbox.button(QtWidgets.QMessageBox.No)
-        button_no.setText("Ne")
+        button_no.setText("Zachovat data")
 
         msgbox.exec_()
 
         if msgbox.clickedButton() == button_yes:
             os.remove("data.csv")
+
+        # Pokud bude soubor prázdný, tak ho smažu, jinak by došlo k chybě(např. kdyby někdo něčím smazal obsah souboru)
+        try:
+            if os.path.getsize("data.csv") < 10:
+                os.remove("data.csv")
+        except FileNotFoundError:
+            ...
 
     def _setup_ui(self) -> None:
         """
@@ -194,7 +205,6 @@ class UIMainWindow(QtWidgets.QMainWindow):
 
         # Nastavení 1. tabu
         self.q_tab1.setGeometry(QtCore.QRect(-2, 0, 1032, 772))
-        self.q_tab1.setStyleSheet("background-color: rgb(211, 211, 211);")
 
         self.line.setGeometry(QtCore.QRect(0, 380, 475, 8))
         self.line.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
@@ -375,6 +385,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
 
         # Nastavení 1. tabu
         self.q_tab1.addTab(self.tab_1, "")
+        self.tab_1.setStyleSheet("background-color: rgb(211, 211, 211);")
 
         # Odtud začíná nastavení 2. tabu
 
@@ -410,6 +421,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.LABEL_CPU.setGeometry(QtCore.QRect(30, 281, 321, 31))
 
         self.q_tab1.addTab(self.tab_2, "")
+        self.tab_2.setStyleSheet("background-color: rgb(211, 211, 211);")
         self.q_tab1.setCurrentIndex(0)
         self.setCentralWidget(self.q_tab1)
 

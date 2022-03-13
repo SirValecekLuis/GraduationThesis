@@ -54,7 +54,6 @@ class CPU:
                 self.lowest_temp = round(sensor.Min, 1)
                 self.highest_temp = round(sensor.Max, 1)
             elif sensor_name == "/amdcpu/0/clock/1" or sensor_name == "/intelcpu/0/clock/1":
-                print(sensor.Value)
                 self.frequency = int(round(sensor.Value, -2))  # Frekvence v Mhz zaokrouhleno na stovky a na celé číslo
 
             if "/amdcpu/0/load/" in sensor_name or "/intelcpu/0/load/" in sensor_name:  # Počet jader
