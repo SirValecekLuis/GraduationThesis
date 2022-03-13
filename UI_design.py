@@ -13,11 +13,6 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.setMaximumSize(1024, 768)
         self.setGeometry(400, 150, 1024, 768)
 
-        # Nastavení ikony
-        self.icon = QtGui.QIcon()
-        self.icon.addPixmap(QtGui.QPixmap("window-icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.setWindowIcon(self.icon)
-
         # Spuštění dialogového okna
         if os.path.exists("data.csv"):
             self._dialog_file()
@@ -142,7 +137,6 @@ class UIMainWindow(QtWidgets.QMainWindow):
         """Funkce přepisuje event, neboli událost uzavření aplikace"""
 
         msgbox = QtWidgets.QMessageBox()
-        msgbox.setWindowIcon(self.icon)
         msgbox.setWindowTitle("Ukončení aplikace")
         msgbox.setText("Přejete si ukončit aplikaci?")
         msgbox.setIcon(QtWidgets.QMessageBox.Question)
@@ -163,14 +157,14 @@ class UIMainWindow(QtWidgets.QMainWindow):
         else:
             a0.ignore()
 
-    def _dialog_file(self) -> None:
+    @staticmethod
+    def _dialog_file() -> None:
         """
         Slouží k zavolání dialogového okna, aby mohl uživatel smazat naposledy naměřená data, pokud existuje
         soubor s daty.
         """
 
         msgbox = QtWidgets.QMessageBox()
-        msgbox.setWindowIcon(self.icon)
         msgbox.setWindowTitle("Smazat naměřená data?")
 
         msgbox.setText("Smazat soubory s daty od posledního měření?")
@@ -598,7 +592,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
 
         # CPU část
         self.cpu_name_label.setText(self.font_func(self.parse_func(self.cpu_name_label.text()) + self.cpu.name))
-        self.cpu_cores_label.setText(self.font_func(self.parse_func(self.cpu_cores_label.text()) + self.cpu.cores))
+        self.cpu_cores_label.setText(self.font_func(self.parse_func(self.cpu_cores_label.text()) + str(self.cpu.cores)))
         self.cpu_frequency_label.setText(self.font_func(self.parse_func(self.cpu_frequency_label.text())
                                                         + str(self.cpu.frequency)))
 
@@ -709,6 +703,9 @@ class UIMainWindow(QtWidgets.QMainWindow):
 def main():
     import sys
     app = QtWidgets.QApplication(sys.argv)
+    icon = QtGui.QIcon()
+    icon.addPixmap(QtGui.QPixmap("window-icon.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+    app.setWindowIcon(icon)
     ui = UIMainWindow()
     ui.show()
     sys.exit(app.exec_())

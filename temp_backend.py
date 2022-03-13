@@ -43,7 +43,7 @@ class CPU:
     def __init__(self, cpu):
         self.cpu = cpu
         self.name = self.cpu.Name
-        self.cores = 0
+        self.load = self.temperature = self.lowest_temp = self.highest_temp = self.frequency = self.cores = 0
 
         for sensor in cpu.Sensors:
             sensor_name = str(sensor.Identifier)
@@ -73,6 +73,7 @@ class GPU:
     def __init__(self, gpu):
         self.gpu = gpu
         self.name = self.gpu.Name
+        self.temperature = self.lowest_temp = self.highest_temp = self.fan = self.memory_total = self.memory_used = 0
 
         if self.name.count("NVIDIA") == 2:
             self.name = self.name.replace("NVIDIA ", "", 1)
