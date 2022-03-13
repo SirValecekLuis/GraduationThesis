@@ -69,6 +69,7 @@ class CPU:
         return f"{self.load},{self.temperature}"
 
 
+
 class GPU:
     """
     GPU objekt slouží k uchování senzorických dat z grafické karty, parametry se budou pravidelně měnit.
