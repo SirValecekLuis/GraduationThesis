@@ -21,8 +21,12 @@ class HWMInit:
         self._computer.CPUEnabled = True  # Chci získávat údaje z processoru, [0] a jejich informace
         self._computer.GPUEnabled = True  # Chci získávat údaje z grafické karty [1] bude označovat grafické senzory
         self._computer.Open()  # Spustím měření
+
         self.cpu_object = self._computer.Hardware[0]
-        self.gpu_object = self._computer.Hardware[1]
+        try:
+            self.gpu_object = self._computer.Hardware[1]
+        except IndexError:
+            self.gpu_object = None
 
     def update(self) -> None:
         """
@@ -31,7 +35,8 @@ class HWMInit:
         """
 
         self.cpu_object.Update()
-        self.gpu_object.Update()
+        if self.gpu_object:
+            self.gpu_object.Update()
 
 
 class CPU:
@@ -72,24 +77,27 @@ class GPU:
 
     def __init__(self, gpu):
         self.gpu = gpu
-        self.name = self.gpu.Name
+        self.name = "Informace o grafické kartě nebyly nalezeny"
         self.temperature = self.lowest_temp = self.highest_temp = self.fan = self.memory_total = self.memory_used = 0
 
-        if self.name.count("NVIDIA") == 2:
-            self.name = self.name.replace("NVIDIA ", "", 1)
+        if gpu:
+            self.name = self.gpu.Name
 
-        for sensor in gpu.Sensors:  # Potřeba otestovat, jestli je to "atigpu" nenalezeno v dokumentaci!
-            sensor_name = str(sensor.Identifier)
-            if sensor_name == "/nvidiagpu/0/temperature/0" or sensor_name == "/atigpu/0/temperature/0":
-                self.temperature = int(sensor.Value)  # Teplota
-                self.lowest_temp = int(sensor.Min)
-                self.highest_temp = int(sensor.Max)
-            elif sensor_name == "/nvidiagpu/0/control/0" or sensor_name == "/atigpu/0/control/0":
-                self.fan = int(sensor.Value)  # Větrák vytížení v %
-            elif sensor.Name == "GPU Memory Total":
-                self.memory_total = int(sensor.Value)  # Celkový počet paměti u GPU
-            elif sensor.Name == "GPU Memory":
-                self.memory_used = round(sensor.Value, 1)  # Použití paměti v %
+            if self.name.count("NVIDIA") == 2:
+                self.name = self.name.replace("NVIDIA ", "", 1)
+
+            for sensor in gpu.Sensors:  # Potřeba otestovat, jestli je to "atigpu" nenalezeno v dokumentaci!
+                sensor_name = str(sensor.Identifier)
+                if sensor_name == "/nvidiagpu/0/temperature/0" or sensor_name == "/atigpu/0/temperature/0":
+                    self.temperature = int(sensor.Value)  # Teplota
+                    self.lowest_temp = int(sensor.Min)
+                    self.highest_temp = int(sensor.Max)
+                elif sensor_name == "/nvidiagpu/0/control/0" or sensor_name == "/atigpu/0/control/0":
+                    self.fan = int(sensor.Value)  # Větrák vytížení v %
+                elif sensor.Name == "GPU Memory Total":
+                    self.memory_total = int(sensor.Value)  # Celkový počet paměti u GPU
+                elif sensor.Name == "GPU Memory":
+                    self.memory_used = round(sensor.Value, 1)  # Použití paměti v %
 
     def __repr__(self):
         return f"{self.temperature},{self.fan},{self.memory_used}"
