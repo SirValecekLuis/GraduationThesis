@@ -2,6 +2,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from temp_backend import HWMInit, CPU, GPU, File, Graph
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar  # Toolbar pro Canvas
 import os
+import sys
 
 
 class UIMainWindow(QtWidgets.QMainWindow):
@@ -700,16 +701,11 @@ class UIMainWindow(QtWidgets.QMainWindow):
             self._update_graphs()
 
 
-def main():
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    icon = QtGui.QIcon()
-    icon.addPixmap(QtGui.QPixmap("window-icon.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-    app.setWindowIcon(icon)
-    ui = UIMainWindow()
-    ui.show()
-    sys.exit(app.exec_())
+app = QtWidgets.QApplication(sys.argv)
+icon = QtGui.QIcon()
+icon.addPixmap(QtGui.QPixmap("window-icon.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+app.setWindowIcon(icon)
+ui = UIMainWindow()
+ui.show()
+sys.exit(app.exec_())
 
-
-if __name__ == "__main__":
-    main()
