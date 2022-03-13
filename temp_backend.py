@@ -95,9 +95,9 @@ class GPU:
                     self.highest_temp = int(sensor.Max)
                 elif sensor_name == "/nvidiagpu/0/control/0" or sensor_name == "/atigpu/0/control/0":
                     self.fan = int(sensor.Value)  # Větrák vytížení v %
-                elif sensor.Name == "GPU Memory Total":
+                elif sensor.Name == "GPU Memory Total" and "atigpu" not in sensor_name:
                     self.memory_total = int(sensor.Value)  # Celkový počet paměti u GPU
-                elif sensor.Name == "GPU Memory":
+                elif sensor.Name == "GPU Memory" and "atigpu" not in sensor_name:
                     self.memory_used = round(sensor.Value, 1)  # Použití paměti v %
 
     def __repr__(self):
