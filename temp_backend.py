@@ -77,7 +77,7 @@ class GPU:
 
     def __init__(self, gpu):
         self.gpu = gpu
-        self.name = "Informace o grafické kartě nebyly nalezeny"
+        self.name = "Grafická karta nenalezena"
         self.temperature = self.lowest_temp = self.highest_temp = self.fan = self.memory_total = self.memory_used = 0
 
         if gpu:
@@ -86,7 +86,7 @@ class GPU:
             if self.name.count("NVIDIA") == 2:
                 self.name = self.name.replace("NVIDIA ", "", 1)
 
-            for sensor in gpu.Sensors:  # Potřeba otestovat, jestli je to "atigpu" nenalezeno v dokumentaci!
+            for sensor in gpu.Sensors:
                 sensor_name = str(sensor.Identifier)
                 if sensor_name == "/nvidiagpu/0/temperature/0" or sensor_name == "/atigpu/0/temperature/0":
                     self.temperature = int(sensor.Value)  # Teplota
