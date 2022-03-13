@@ -3,7 +3,6 @@ import time
 import clr  # Pythonnet modul, zajišťuje propojení s API aplikace
 import numpy as np
 import csv
-import re
 import matplotlib
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
@@ -58,9 +57,9 @@ class CPU:
             elif sensor_name == "/amdcpu/0/clock/1" or sensor_name == "/intelcpu/0/clock/1":
                 self.frequency = math.ceil(sensor.Value / 100) * 100  # Frekvence v Mhz
 
-            if "/amdcpu/0/load/" in sensor_name or "/intelcpu/0/load/" in sensor_name:
+            if "/amdcpu/0/load/" in sensor_name or "/intelcpu/0/load/" in sensor_name:  # Počet jader
                 if int(sensor_name[-1]) > int(self.cores):
-                    self.cores = sensor_name[-1]
+                    self.cores = sensor_name[-1]    # Ponechávám jako text, abych mohl dát do labelu později
 
     def __repr__(self):
         return f"{self.load},{self.temperature}"
@@ -215,8 +214,6 @@ class Graph(FigureCanvasQTAgg):
 def test(cpu_object, gpu_object) -> print:
     """
     Funkce slouží k testování a základnímu ladění programu.
-    :param cpu_object: Objekt typu CPU
-    :param gpu_object: Objekt typu GPU
     :return: Vytiskne veškerá senzorická data s jejími názvy a dalšími informacemi, slouží pro debugging.
     """
 
