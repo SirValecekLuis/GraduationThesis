@@ -48,7 +48,12 @@ class CPU:
     def __init__(self, cpu):
         self.cpu = cpu
         self.name = self.cpu.Name
-        self.load = self.temperature = self.lowest_temp = self.highest_temp = self.frequency = self.cores = 0
+        self.cores = cpu.coreCount
+        self.frequency = int(round(cpu.TimeStampCounterFrequency, -2))
+        self.load = self.temperature = self.lowest_temp = self.highest_temp = 0
+
+        if "processor" in self.name.lower():
+            self.name = self.name.replace("Processor", "").replace("processor", "")
 
         for sensor in cpu.Sensors:
             sensor_name = str(sensor.Identifier)
@@ -58,16 +63,9 @@ class CPU:
                 self.temperature = round(sensor.Value, 1)  # Teplota v °C
                 self.lowest_temp = round(sensor.Min, 1)
                 self.highest_temp = round(sensor.Max, 1)
-            elif sensor_name == "/amdcpu/0/clock/1" or sensor_name == "/intelcpu/0/clock/1":
-                self.frequency = int(round(sensor.Value, -2))  # Frekvence v Mhz zaokrouhleno na stovky a na celé číslo
-
-            if "/amdcpu/0/load/" in sensor_name or "/intelcpu/0/load/" in sensor_name:  # Počet jader
-                if int(sensor_name[-1]) > int(self.cores):
-                    self.cores = sensor_name[-1]  # Ponechávám jako text, abych mohl dát do labelu později
 
     def __repr__(self):
         return f"{self.load},{self.temperature}"
-
 
 
 class GPU:

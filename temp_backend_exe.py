@@ -227,20 +227,20 @@ def test(cpu_object, gpu_object) -> print:
     """
 
     for i in cpu_object.Sensors:
-        with open("data.csv", "a") as f:
+        with open("info.txt", "a") as f:
             f.write(str(i.Value) + "   " + str(i.Name) + "   " + str(i.Identifier) + "\n")
     else:
-        with open("data.csv", "a") as f:
+        with open("info.txt", "a") as f:
             f.write(100 * "    " + "\n")
 
     for i in gpu_object.Sensors:
-        with open("data.csv", "a") as f:
+        with open("info.txt", "a") as f:
             f.write(str(i.Value) + "   " + str(i.Name) + "   " + str(i.Identifier) + "\n")
 
 
 computer_object = HWMInit()  # Obsahuje objekty s kterými mohu pracovat(co senzor to objekt)
-file = File("data.csv")  # Název souboru
-with open("data.csv", "w") as f:
+file = File("info.txt")  # Název souboru
+with open("info.txt", "w") as f:
     f.write("INFORMACE\n" + 100 * "#" + "\n")
 computer_object.update()
 cpu = computer_object.cpu_object

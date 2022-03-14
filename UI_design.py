@@ -113,6 +113,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self._setup_ui()
 
         # Text k labelům
+        self.CPU_FREQUENCY_TEXT = self.parse_func(self.cpu_frequency_label.text())
         self.CPU_ACTUAL_TEMPERATURE_TEXT = self.parse_func(self.cpu_actual_temperature_label.text())
         self.CPU_MIN_TEMPERATURE_TEXT = self.parse_func(self.cpu_min_temperature_label.text())
         self.CPU_MAX_TEMPERATURE_TEXT = self.parse_func(self.cpu_max_temperature_label.text())
@@ -216,7 +217,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.GPU_MAIN_LABEL.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         self.GPU_MAIN_LABEL.setFrameShape(QtWidgets.QFrame.NoFrame)
 
-        self.cpu_frequency_label.setGeometry(QtCore.QRect(55, 150, 231, 21))
+        self.cpu_frequency_label.setGeometry(QtCore.QRect(55, 150, 301, 21))
         self.cpu_frequency_label.setStyleSheet("color: rgb(40, 125, 200);")
         self.cpu_frequency_label.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.cpu_frequency_label.setTextFormat(QtCore.Qt.AutoText)
@@ -435,7 +436,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.GPU_MAIN_LABEL.setText(_translate("main_window",
                                                f"{self.html_title_head}GPU - grafický čip{self.html_font_end}"))
         self.cpu_frequency_label.setText(_translate("main_window",
-                                                    f"{self.html_text_head}Frekvence procesoru MHz: "
+                                                    f"{self.html_text_head}Aktuální frekvence procesoru MHz: "
                                                     f"{self.html_font_end}")
                                          )
         self.cpu_cores_label.setText(_translate("main_window",
@@ -594,8 +595,6 @@ class UIMainWindow(QtWidgets.QMainWindow):
         # CPU část
         self.cpu_name_label.setText(self.font_func(self.parse_func(self.cpu_name_label.text()) + self.cpu.name))
         self.cpu_cores_label.setText(self.font_func(self.parse_func(self.cpu_cores_label.text()) + str(self.cpu.cores)))
-        self.cpu_frequency_label.setText(self.font_func(self.parse_func(self.cpu_frequency_label.text())
-                                                        + str(self.cpu.frequency)))
 
         # GPU část
         self.gpu_name_label.setText(self.font_func(self.parse_func(self.gpu_name_label.text())
@@ -607,8 +606,11 @@ class UIMainWindow(QtWidgets.QMainWindow):
         """Tato funkce slouží k pravidelné obměně informací na 1. tabu, jelikož tyto informace nejsou konstatní"""
 
         # Pokračování CPU části, která se mění
+        self.cpu_frequency_label.setText(
+            self.font_func(self.CPU_FREQUENCY_TEXT + str(self.cpu.frequency)))
         self.cpu_actual_temperature_label.setText(
             self.font_func(self.CPU_ACTUAL_TEMPERATURE_TEXT + str(self.cpu.temperature)))
+        self.cpu_actual_temperature_label.adjustSize()
         self.cpu_min_temperature_label.setText(
             self.font_func(self.CPU_MIN_TEMPERATURE_TEXT + str(self.cpu.lowest_temp)))
         self.cpu_max_temperature_label.setText(
