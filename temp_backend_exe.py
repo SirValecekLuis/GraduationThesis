@@ -15,7 +15,10 @@ class HWMInit:
         self._computer.GPUEnabled = True  # Chci získávat údaje z grafické karty [1] bude označovat grafické senzory
         self._computer.Open()  # Spustím měření
 
+ 
         self.cpu_object = self._computer.Hardware[0]
+        for i in self.cpu_object.Sensors:
+            print(i, type(i))
         try:
             self.gpu_object = self._computer.Hardware[1]
         except IndexError:

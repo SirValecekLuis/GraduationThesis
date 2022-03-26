@@ -471,7 +471,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
                                                    f"{self.html_font_end}")
                                         )
         self.gpu_temperature_label.setText(_translate("main_window",
-                                                      f"{self.html_text_head}Aktuální teplota C°: "
+                                                      f"{self.html_text_head}Aktuální teplota °C: "
                                                       f"{self.html_font_end}")
                                            )
         self.gpu_min_temperature_label.setText(_translate("main_window",

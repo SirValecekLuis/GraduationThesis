@@ -196,7 +196,7 @@ class Graph(FigureCanvasQTAgg):
             self.sub.set_title("Grafická karta")
             self.data_y = data[index]  # 3 sloupce, 1. sloupec je teplota
 
-        self.data_x = np.linspace(0, len(data[0]), len(data[0]))  # Vytvořím si pole odpovídající velikosti dat
+        self.data_x = np.linspace(1, len(data[0]), len(data[0]))  # Vytvořím si pole odpovídající velikosti dat
         self.graph, = self.sub.plot(self.data_x, self.data_y,
                                     "-b", label=header[index])  # Vykreslím teplotu vzhledem k času
         self.legend = self.sub.legend(loc='upper center', fancybox=True, bbox_to_anchor=(0.5, 1.05), shadow=True)
@@ -209,9 +209,9 @@ class Graph(FigureCanvasQTAgg):
     def update_data(self, data: np.ndarray, index: int):
         """Funkce slouží k novému nahrání dat z předešlé doby"""
 
-        self.data_x = np.linspace(0, len(data[0]), len(data[0]))  # Vypíšu rozmezí časové od 0 do počet dat(počet sec)
+        self.data_x = np.linspace(1, len(data[0]), len(data[0]))  # Vypíšu rozmezí časové od 0 do počet dat(počet sec)
         self.graph.set_data(self.data_x, data[index])  # Nastavím nové informace
-        self.sub.set_xlim(0, len(data[0]))  # Data[0] znamená jen kvůli počtu sekund (počet měření = počet s)
+        self.sub.set_xlim(1, len(data[0]))  # Data[0] znamená jen kvůli počtu sekund (počet měření = počet s)
         self.sub.set_ylim(min(data[index]) - 0.5, max(data[index]) + 1.5)  # Nastavím nový rozsah sloupce
         self.sub.set_ylabel(self.header[index])  # Přejmenuji Y osu
         self.legend.get_texts()[0].set_text(self.header[index])  # Přejmenuji legendu grafu
