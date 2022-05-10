@@ -702,12 +702,12 @@ class UIMainWindow(QtWidgets.QMainWindow):
         if self.update_graphs_bool:  # Pokud není pozastavena aktualizace grafů, tak aktualizuji graf
             self._update_graphs()
 
-
-app = QtWidgets.QApplication(sys.argv)
-icon = QtGui.QIcon()
-icon.addPixmap(QtGui.QPixmap("window-icon.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-app.setWindowIcon(icon)
-ui = UIMainWindow()
-ui.show()
-sys.exit(app.exec_())
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    icon = QtGui.QIcon()
+    icon.addPixmap(QtGui.QPixmap("window-icon.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+    app.setWindowIcon(icon)
+    ui = UIMainWindow()
+    ui.show()
+    sys.exit(app.exec_())
 
