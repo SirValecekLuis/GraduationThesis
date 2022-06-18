@@ -57,6 +57,9 @@ class CPU:
 
         for sensor in cpu.Sensors:
             sensor_name = str(sensor.Identifier)
+            if sensor.Value is None or sensor.Min is None or sensor.Max is None:
+                "A bug may appear where a sensor is found but gives back None"
+                continue
             if sensor_name == "/amdcpu/0/load/0" or sensor_name == "/intelcpu/0/load/0":
                 self.load = round(sensor.Value, 1)  # Vytížení v %
             elif sensor_name == "/amdcpu/0/temperature/0" or sensor_name == "/intelcpu/0/temperature/0":
@@ -87,6 +90,8 @@ class GPU:
 
             for sensor in gpu.Sensors:
                 sensor_name = str(sensor.Identifier)
+                if sensor.Value is None or sensor.Min is None or sensor.Max is None:
+                    continue
                 if sensor_name == "/nvidiagpu/0/temperature/0" or sensor_name == "/atigpu/0/temperature/0":
                     self.temperature = int(sensor.Value)  # Teplota
                     self.lowest_temp = int(sensor.Min)
@@ -219,10 +224,10 @@ class Graph(FigureCanvasQTAgg):
 
 
 # Testovací část, spouští se pokud se spouští přímo zdrojový kód temp_backend.py
-def test(cpu_object, gpu_object) -> print:
+def test(cpu_object, gpu_object) -> None:
     """
     Funkce slouží k testování a základnímu ladění programu.
-    :return: Vytiskne veškerá senzorická data s jejími názvy a dalšími informacemi, slouží pro debugging.
+    :return: Vytiskne veškerá senzorická data s jejími názvy a dalšími informacemi.
     """
 
     for i in cpu_object.Sensors:
@@ -249,20 +254,13 @@ def main():
 
     computer_object = HWMInit()  # Obsahuje objekty s kterými mohu pracovat(co senzor to objekt)
     file = File("data.csv")  # Název souboru
-    inp = input("Zadej režim: ") == "normal"
     while True:
-        if inp:
-            computer_object.update()
-            cpu = CPU(computer_object.cpu_object)
-            gpu = GPU(computer_object.gpu_object)
-            file.write_data(cpu, gpu)
-            file.update_ndar_list()
-            time.sleep(2)
-        else:
-            computer_object.update()
-            cpu = computer_object.cpu_object
-            gpu = computer_object.gpu_object
-            test(cpu, gpu)
+        computer_object.update()
+        cpu = CPU(computer_object.cpu_object)
+        gpu = GPU(computer_object.gpu_object)
+        file.write_data(cpu, gpu)
+        file.update_ndar_list()
+        time.sleep(2)
 
 
 if __name__ == "__main__":

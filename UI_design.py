@@ -702,6 +702,7 @@ class UIMainWindow(QtWidgets.QMainWindow):
         if self.update_graphs_bool:  # Pokud není pozastavena aktualizace grafů, tak aktualizuji graf
             self._update_graphs()
 
+
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     icon = QtGui.QIcon()
@@ -710,4 +711,3 @@ if __name__ == "__main__":
     ui = UIMainWindow()
     ui.show()
     sys.exit(app.exec_())
-
